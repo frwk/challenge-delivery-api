@@ -1,4 +1,8 @@
+import Complaint from '@/models/complaints.model';
+import Courier from '@/models/couriers.model';
 import Delivery from '@/models/deliveries.model';
+import Notation from '@/models/notations.model';
+import Reward from '@/models/rewards.model';
 import User from '@/models/users.model';
 import { NODE_ENV, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_DATABASE } from '@config';
 import { logger } from '@utils/logger';
@@ -23,7 +27,7 @@ export const sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${D
     logger.info(time + 'ms' + ' ' + query);
   },
   benchmark: true,
-  models: [User, Delivery],
+  models: [User, Delivery, Courier, Complaint, Notation, Reward],
 });
 
 sequelize.authenticate();

@@ -6,6 +6,7 @@ import { AuthMiddleware } from '@middlewares/auth.middleware';
 import { ValidationMiddleware } from '@middlewares/validation.middleware';
 
 export class AuthRoute implements Routes {
+  public path = '/auth';
   public router = Router();
   public auth = new AuthController();
 
