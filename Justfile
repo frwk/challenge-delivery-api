@@ -81,7 +81,7 @@ migrate:
 
 # Undo all database migrations
 undo:
-	@just npx 
+	@just npx sequelize-cli db:migrate:undo:all
     
 # Seed the database
 seed:

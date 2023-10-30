@@ -3,22 +3,21 @@ import { UserController } from '@controllers/users.controller';
 import { CreateUserDto } from '@dtos/users.dto';
 import { Routes } from '@interfaces/routes.interface';
 import { ValidationMiddleware } from '@middlewares/validation.middleware';
-import { AuthMiddleware } from '@/middlewares/auth.middleware';
 
 export class UserRoute implements Routes {
   public path = '/users';
   public router = Router();
-  public user = new UserController();
+  public userController = new UserController();
 
   constructor() {
     this.initializeRoutes();
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, AuthMiddleware, this.user.getUsers);
-    this.router.get(`${this.path}/:id(\\d+)`, this.user.getUserById);
-    this.router.post(`${this.path}`, ValidationMiddleware(CreateUserDto), this.user.createUser);
-    this.router.put(`${this.path}/:id(\\d+)`, ValidationMiddleware(CreateUserDto, true), this.user.updateUser);
-    this.router.delete(`${this.path}/:id(\\d+)`, this.user.deleteUser);
+    this.router.get(`${this.path}`, this.userController.getUsers);
+    this.router.get(`${this.path}/:id(\\d+)`, this.userController.getUserById);
+    this.router.post(`${this.path}`, ValidationMiddleware(CreateUserDto), this.userController.createUser);
+    this.router.put(`${this.path}/:id(\\d+)`, ValidationMiddleware(CreateUserDto, true), this.userController.updateUser);
+    this.router.delete(`${this.path}/:id(\\d+)`, this.userController.deleteUser);
   }
 }

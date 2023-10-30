@@ -1,25 +1,26 @@
 'use strict';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('deliveries', {
+    await queryInterface.createTable('notations', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      pickup: {
-        type: Sequelize.STRING,
+      note: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
-      dropoff: {
-        type: Sequelize.STRING,
-      },
-      pickup_date: {
-        type: Sequelize.DATE,
-      },
-      dropoff_date: {
-        type: Sequelize.DATE,
+      delivery_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'deliveries',
+          key: 'id',
+        },
+        allowNull: false,
       },
       client_id: {
         type: Sequelize.INTEGER,
@@ -27,21 +28,7 @@ module.exports = {
           model: 'users',
           key: 'id',
         },
-        onDelete: 'CASCADE',
-      },
-      courier_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-      confirmation_code: {
-        type: Sequelize.STRING,
-      },
-      status: {
-        type: Sequelize.ENUM('pending', 'in_progress', 'completed', 'canceled'),
+        allowNull: false,
       },
       created_at: {
         allowNull: false,
@@ -55,6 +42,6 @@ module.exports = {
   },
 
   down: async queryInterface => {
-    await queryInterface.dropTable('deliveries');
+    await queryInterface.dropTable('notations');
   },
 };
