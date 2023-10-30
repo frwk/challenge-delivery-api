@@ -4,6 +4,7 @@ import request from 'supertest';
 import { App } from '@/app';
 import { CreateUserDto } from '@dtos/users.dto';
 import { AuthRoute } from '@routes/auth.route';
+import User from '@/models/users.model';
 
 afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
@@ -18,7 +19,8 @@ describe('Testing Auth', () => {
       };
 
       const authRoute = new AuthRoute();
-      const users = authRoute.authController.authService.users;
+      // const users = authRoute.authController.authService.users;
+      const users = User;
 
       users.findOne = jest.fn().mockReturnValue(null);
       users.create = jest.fn().mockReturnValue({
@@ -41,7 +43,8 @@ describe('Testing Auth', () => {
       };
 
       const authRoute = new AuthRoute();
-      const users = authRoute.authController.authService.users;
+      // const users = authRoute.authController.authService.users;
+      const users = User;
 
       users.findOne = jest.fn().mockReturnValue({
         id: 1,

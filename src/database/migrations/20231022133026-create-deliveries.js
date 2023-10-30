@@ -1,4 +1,7 @@
 'use strict';
+
+const { DeliveryStatuses } = require('@/enums/delivery-statuses.enum');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -32,7 +35,7 @@ module.exports = {
       courier_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'users',
+          model: 'couriers',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -41,7 +44,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       status: {
-        type: Sequelize.ENUM('pending', 'in_progress', 'completed', 'canceled'),
+        type: Sequelize.ENUM(DeliveryStatuses.PENDING, DeliveryStatuses.PICKED_UP, DeliveryStatuses.DELIVERED, DeliveryStatuses.CANCELLED),
       },
       created_at: {
         allowNull: false,

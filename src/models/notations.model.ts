@@ -1,31 +1,23 @@
 import { AutoIncrement, BelongsTo, Column, CreatedAt, ForeignKey, PrimaryKey, Table, UpdatedAt, Model } from 'sequelize-typescript';
 import User from './users.model';
-import Courier from './couriers.model';
+import Delivery from './deliveries.model';
 
-@Table({ tableName: 'deliveries' })
-export default class Delivery extends Model {
+@Table({ tableName: 'notations' })
+export default class Notation extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column
   id: number;
 
   @Column
-  pickup: string;
+  note: number;
 
+  @ForeignKey(() => Delivery)
   @Column
-  dropoff: string;
+  deliveryId: number;
 
-  @Column
-  pickup_date: Date;
-
-  @Column
-  dropoff_date: Date;
-
-  @Column
-  confirmation_code: string;
-
-  @Column
-  status: string;
+  @BelongsTo(() => Delivery)
+  delivery: Delivery;
 
   @ForeignKey(() => User)
   @Column
@@ -33,13 +25,6 @@ export default class Delivery extends Model {
 
   @BelongsTo(() => User)
   client: User;
-
-  @ForeignKey(() => Courier)
-  @Column
-  courierId: number;
-
-  @BelongsTo(() => Courier)
-  courier: Courier;
 
   @CreatedAt
   readonly createdAt: Date;
