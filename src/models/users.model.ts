@@ -1,6 +1,8 @@
 import { AutoIncrement, Column, CreatedAt, HasMany, PrimaryKey, Table, UpdatedAt, Model, DataType, Default, Unique } from 'sequelize-typescript';
 import Delivery from './deliveries.model';
 import { Roles } from '@/enums/roles.enum';
+import Complaint from './complaints.model';
+import Reward from './rewards.model';
 
 @Table({ tableName: 'users', underscored: true })
 export default class User extends Model {
@@ -28,4 +30,10 @@ export default class User extends Model {
 
   @HasMany(() => Delivery)
   deliveries: Delivery[];
+
+  @HasMany(() => Complaint)
+  complaints: Complaint[];
+
+  @HasMany(() => Reward)
+  rewards: Reward[];
 }

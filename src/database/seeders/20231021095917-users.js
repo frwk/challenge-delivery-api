@@ -15,6 +15,24 @@ module.exports = {
         updated_at: new Date(),
       });
     }
+
+    // Add admin user
+    users.push({
+      email: 'admin@test.com',
+      password: await bcrypt.hash('password', 10),
+      role: 'admin',
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+    // Add support user
+    users.push({
+      email: 'support@test.com',
+      password: await bcrypt.hash('password', 10),
+      role: 'support',
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+
     await queryInterface.bulkInsert('users', users);
   },
 
