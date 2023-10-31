@@ -1,34 +1,33 @@
 'use strict';
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('complaints', {
+  async up(queryInterface, Sequelize) {
+    return await queryInterface.createTable('complaint_messages', {
       id: {
-        allowNull: false,
-        autoIncrement: true,
+        type: Sequelize.INTEGER,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        autoIncrement: true,
       },
-      delivery_id: {
+      complaint_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
-          model: 'deliveries',
+          model: 'complaints',
           key: 'id',
         },
-        allowNull: false,
       },
       user_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'users',
           key: 'id',
         },
-        allowNull: false,
       },
-      status: {
-        type: Sequelize.ENUM('pending', 'resolved'),
+      content: {
+        type: Sequelize.TEXT,
         allowNull: false,
-        defaultValue: 'pending',
       },
       created_at: {
         allowNull: false,
@@ -41,7 +40,7 @@ module.exports = {
     });
   },
 
-  down: async queryInterface => {
-    await queryInterface.dropTable('complaints');
+  async down(queryInterface) {
+    return await queryInterface.dropTable('complaint_messages');
   },
 };
