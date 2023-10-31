@@ -1,4 +1,4 @@
-import { AutoIncrement, BelongsTo, Column, CreatedAt, ForeignKey, PrimaryKey, Table, UpdatedAt, Model } from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, Column, CreatedAt, ForeignKey, PrimaryKey, Table, UpdatedAt, Model, HasMany, HasOne } from 'sequelize-typescript';
 import User from './users.model';
 import Courier from './couriers.model';
 
@@ -26,6 +26,9 @@ export default class Delivery extends Model {
 
   @Column
   status: string;
+
+  @Column
+  notation: number;
 
   @ForeignKey(() => User)
   @Column

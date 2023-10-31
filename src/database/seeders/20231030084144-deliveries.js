@@ -7,7 +7,7 @@ module.exports = {
     const deliveries = [];
     const statusOptions = ['pending', 'picked_up', 'delivered', 'cancelled'];
 
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 200; i++) {
       const now = new Date();
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
@@ -25,10 +25,11 @@ module.exports = {
         dropoff: `48.${Math.floor(100 + random() * 100)},2.${Math.floor(5 + random() * 10)}`, // Coordonnées GPS approximatives pour l'Ile-de-France
         pickup_date: pickupDate,
         dropoff_date: dropoffDate,
-        client_id: i,
-        courier_id: i,
+        client_id: Math.floor(Math.random() * 10) + 1,
+        courier_id: Math.floor(Math.random() * 10) + 1,
         confirmation_code: confirmationCode,
         status: statusOptions[i % statusOptions.length],
+        notation: Math.floor(Math.random() * 5) + 1,
         created_at: new Date(),
         updated_at: new Date(),
       });
