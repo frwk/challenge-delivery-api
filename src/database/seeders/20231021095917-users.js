@@ -4,15 +4,21 @@ const bcrypt = require('bcryptjs');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface) {
+    function randomDateBetweenNowAndThreeMonthsAgo() {
+      return new Date(
+        Math.random() * (new Date().getTime() - new Date().setMonth(new Date().getMonth() - 3)) + new Date().setMonth(new Date().getMonth() - 3),
+      );
+    }
     const users = [];
-    for (let i = 1; i <= 10; i++) {
-      const hashedPassword = await bcrypt.hash('password', 10);
+    for (let i = 1; i <= 200; i++) {
+      const hashedPassword = await bcrypt.hash('password', 2);
+      const date = randomDateBetweenNowAndThreeMonthsAgo();
       users.push({
         email: `user${i}@test.com`,
         password: hashedPassword,
         role: 'client',
-        created_at: new Date(),
-        updated_at: new Date(),
+        created_at: date,
+        updated_at: date,
       });
     }
 
