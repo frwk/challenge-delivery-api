@@ -6,7 +6,7 @@ import { CreateDeliveryDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
 @Service()
 export class DeliveryService {
   public async findAllDeliveries(): Promise<Delivery[]> {
-    const allUser: Delivery[] = await Delivery.findAll();
+    const allUser: Delivery[] = await Delivery.findAll({ include: [{ all: true }] });
     return allUser;
   }
 

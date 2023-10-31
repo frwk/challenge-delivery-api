@@ -44,6 +44,9 @@ module.exports = {
       status: {
         type: Sequelize.ENUM('pending', 'picked_up', 'delivered', 'cancelled'),
       },
+      notation: {
+        type: Sequelize.INTEGER,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
