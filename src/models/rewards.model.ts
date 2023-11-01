@@ -1,4 +1,4 @@
-import { AutoIncrement, BelongsTo, Column, CreatedAt, ForeignKey, PrimaryKey, Table, UpdatedAt, Model } from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, Column, CreatedAt, ForeignKey, PrimaryKey, Table, UpdatedAt, Model, DeletedAt } from 'sequelize-typescript';
 import User from './users.model';
 
 @Table({ tableName: 'rewards', underscored: true })
@@ -20,4 +20,7 @@ export default class Reward extends Model {
 
   @UpdatedAt
   readonly updatedAt: Date;
+
+  @DeletedAt
+  deletedAt: Date;
 }

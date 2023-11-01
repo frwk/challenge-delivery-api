@@ -35,6 +35,6 @@
       "@utils/*": ["utils/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.json", ".env", "src/config/sequelize-cli.js", "src/database/migrations/20231022123458-create-users.js", "src/database/migrations/20231022133026-create-deliveries.js", "src/database/seeders/20231021095917-users.js"],
+  "include": ["src/**/*.ts", "src/**/*.json", ".env", ".sequelizerc", "src/config/sequelize-cli.js", "src/database/migrations/20231022123458-create-users.js", "src/database/migrations/20231022133026-create-deliveries.js", "src/database/seeders/20231021095917-users.js"],
   "exclude": ["node_modules", "src/http", "src/logs"]
 }

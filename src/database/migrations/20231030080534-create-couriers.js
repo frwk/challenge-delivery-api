@@ -10,8 +10,16 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      is_available: {
-        type: Sequelize.BOOLEAN,
+      status: {
+        type: Sequelize.ENUM('available', 'unavailable', 'on_delivery'),
+        defaultValue: 'available',
+      },
+      latitude: {
+        type: Sequelize.DECIMAL(9, 6),
+        allowNull: true,
+      },
+      longitude: {
+        type: Sequelize.DECIMAL(9, 6),
         allowNull: true,
       },
       user_id: {
@@ -29,6 +37,10 @@ module.exports = {
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
+      },
+      deleted_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
     });
   },

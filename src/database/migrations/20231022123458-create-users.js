@@ -9,6 +9,8 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
+      first_name: Sequelize.STRING,
+      last_name: Sequelize.STRING,
       email: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -30,6 +32,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.NOW,
+      },
+      deleted_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
     });
   },

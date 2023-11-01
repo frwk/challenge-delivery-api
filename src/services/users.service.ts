@@ -1,6 +1,6 @@
 import { hash } from 'bcryptjs';
 import { Service } from 'typedi';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, UpdateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import User from '@/models/users.model';
 
@@ -22,17 +22,15 @@ export class UserService {
     const findUser: User = await User.findOne({ where: { email: userData.email } });
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
 
-    const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await User.create({ ...userData, password: hashedPassword });
+    const createUserData: User = await User.create({ ...userData });
     return createUserData;
   }
 
-  public async updateUser(userId: number, userData: CreateUserDto): Promise<User> {
+  public async updateUser(userId: number, userData: UpdateUserDto): Promise<User> {
     const findUser: User = await User.findByPk(userId);
     if (!findUser) throw new HttpException(409, "User doesn't exist");
 
-    const hashedPassword = await hash(userData.password, 10);
-    await User.update({ ...userData, password: hashedPassword }, { where: { id: userId } });
+    await findUser.update(userData);
 
     const updateUser: User = await User.findByPk(userId);
     return updateUser;

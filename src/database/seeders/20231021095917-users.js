@@ -15,6 +15,8 @@ module.exports = {
       const date = randomDateBetweenNowAndThreeMonthsAgo();
       users.push({
         email: `user${i}@test.com`,
+        first_name: `User${i}`,
+        last_name: `Doe`,
         password: hashedPassword,
         role: 'client',
         created_at: date,
@@ -25,6 +27,8 @@ module.exports = {
     // Add admin user
     users.push({
       email: 'admin@test.com',
+      first_name: 'Admin',
+      last_name: 'Doe',
       password: await bcrypt.hash('password', 10),
       role: 'admin',
       created_at: new Date(),

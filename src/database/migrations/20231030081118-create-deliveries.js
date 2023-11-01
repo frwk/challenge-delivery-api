@@ -10,11 +10,21 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      pickup: {
-        type: Sequelize.STRING,
+      pickup_latitude: {
+        type: Sequelize.DECIMAL(9, 6),
+        allowNull: true,
       },
-      dropoff: {
-        type: Sequelize.STRING,
+      pickup_longitude: {
+        type: Sequelize.DECIMAL(9, 6),
+        allowNull: true,
+      },
+      dropoff_latitude: {
+        type: Sequelize.DECIMAL(9, 6),
+        allowNull: true,
+      },
+      dropoff_longitude: {
+        type: Sequelize.DECIMAL(9, 6),
+        allowNull: true,
       },
       pickup_date: {
         type: Sequelize.DATE,
@@ -43,6 +53,7 @@ module.exports = {
       },
       status: {
         type: Sequelize.ENUM('pending', 'picked_up', 'delivered', 'cancelled'),
+        defaultValue: 'pending',
       },
       notation: {
         type: Sequelize.INTEGER,
@@ -54,6 +65,10 @@ module.exports = {
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
+      },
+      deleted_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
     });
   },

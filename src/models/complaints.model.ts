@@ -1,4 +1,17 @@
-import { AutoIncrement, BelongsTo, Column, CreatedAt, ForeignKey, PrimaryKey, Table, UpdatedAt, Model, HasMany, Default } from 'sequelize-typescript';
+import {
+  AutoIncrement,
+  BelongsTo,
+  Column,
+  CreatedAt,
+  ForeignKey,
+  PrimaryKey,
+  Table,
+  UpdatedAt,
+  Model,
+  HasMany,
+  Default,
+  DeletedAt,
+} from 'sequelize-typescript';
 import User from './users.model';
 import Delivery from './deliveries.model';
 import ComplaintMessage from './complaint-message.model';
@@ -35,6 +48,9 @@ export default class Complaint extends Model {
 
   @UpdatedAt
   readonly updatedAt: Date;
+
+  @DeletedAt
+  deletedAt: Date;
 
   @HasMany(() => ComplaintMessage)
   complaintMessages: ComplaintMessage[];

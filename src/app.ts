@@ -14,6 +14,7 @@ import { Routes } from '@interfaces/routes.interface';
 import { ErrorMiddleware } from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { sequelize } from './database';
+import mongoose from 'mongoose';
 
 export class App {
   public app: express.Application;
@@ -48,6 +49,9 @@ export class App {
   private async connectToDatabase() {
     try {
       await sequelize.authenticate();
+      await mongoose.connect(process.env.MONGO_URL).then(() => {
+        logger.info('Successfully connected to MongoDB');
+      });
       console.log('Connection has been established successfully.');
     } catch (error) {
       console.error('Unable to connect to the database:', error);
@@ -56,7 +60,7 @@ export class App {
 
   private initializeMiddlewares() {
     this.app.use(morgan(LOG_FORMAT, { stream }));
-    this.app.use(cors({ origin: ORIGIN, credentials: CREDENTIALS }));
+    this.app.use(cors());
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
