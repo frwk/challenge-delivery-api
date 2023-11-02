@@ -3,6 +3,7 @@ FROM node:current-buster-slim
 
 # Copy Dir
 COPY . ./app
+COPY .env /app/.env
 
 # Work to Dir
 WORKDIR /app

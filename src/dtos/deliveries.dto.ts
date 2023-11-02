@@ -20,7 +20,7 @@ export class CreateDeliveryDto {
   @Length(4, 4)
   confirmationCode: string;
 
-  @IsEnum([DeliveryStatuses.PENDING, DeliveryStatuses.PENDING, DeliveryStatuses.PICKED_UP, DeliveryStatuses.CANCELLED])
+  @IsEnum(DeliveryStatuses)
   status: string;
 
   @IsNumber()
@@ -49,7 +49,7 @@ export class UpdateDeliveryDto {
   @Length(4, 4)
   confirmationCode: string;
 
-  @IsEnum([DeliveryStatuses.PENDING, DeliveryStatuses.PENDING, DeliveryStatuses.PICKED_UP, DeliveryStatuses.CANCELLED])
+  @IsEnum(DeliveryStatuses)
   status: string;
 
   @IsNumber()

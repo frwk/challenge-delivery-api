@@ -25,9 +25,7 @@ export class DeliveryService {
   public async updateDelivery(id: number, data: UpdateDeliveryDto): Promise<Delivery> {
     const delivery: Delivery = await Delivery.findByPk(id);
     if (!delivery) throw new HttpException(409, "Delivery doesn't exist");
-
-    await Delivery.update({ data }, { where: { id: id } });
-
+    await delivery.update(data, { where: { id: id } });
     const updatedDelivery: Delivery = await Delivery.findByPk(id);
     return updatedDelivery;
   }

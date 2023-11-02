@@ -4,12 +4,14 @@ import Courier from '@/models/couriers.model';
 import Delivery from '@/models/deliveries.model';
 import Reward from '@/models/rewards.model';
 import User from '@/models/users.model';
-import { NODE_ENV, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_DATABASE } from '@config';
+import { NODE_ENV, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DATABASE } from '@config';
 import { logger } from '@utils/logger';
 import * as pg from 'pg';
 import { Sequelize } from 'sequelize-typescript';
+import mongooseDefault from 'mongoose';
+import { config } from 'dotenv';
 
-export const sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}`, {
+export const sequelize = new Sequelize(`postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}`, {
   dialectModule: pg,
   timezone: '+09:00',
   define: {
