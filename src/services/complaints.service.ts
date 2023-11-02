@@ -1,17 +1,18 @@
 import { CreateComplaintDto, UpdateComplaintDto } from '@/dtos/complaints.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import Complaint from '@/models/complaints.model';
+import { Attributes, FindOptions } from 'sequelize';
 import { Service } from 'typedi';
 
 @Service()
 export class ComplaintsService {
-  public async findAllComplaints(): Promise<Complaint[]> {
-    const allComplaints: Complaint[] = await Complaint.findAll();
+  public async findAllComplaints(options: FindOptions<Attributes<Complaint>>): Promise<Complaint[]> {
+    const allComplaints: Complaint[] = await Complaint.findAll(options);
     return allComplaints;
   }
 
-  public async findComplaintById(complaintId: number): Promise<Complaint> {
-    const findComplaint: Complaint = await Complaint.findByPk(complaintId);
+  public async findComplaintById(complaintId: number, options: FindOptions<Attributes<Complaint>>): Promise<Complaint> {
+    const findComplaint: Complaint = await Complaint.findByPk(complaintId, options);
     if (!findComplaint) throw new HttpException(404, "Complaint doesn't exist");
 
     return findComplaint;

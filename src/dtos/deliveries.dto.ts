@@ -4,11 +4,19 @@ import { IsNotEmpty, IsString, IsNumber, IsDate, Length, IsEnum } from 'class-va
 export class CreateDeliveryDto {
   @IsString()
   @IsNotEmpty()
-  pickup: string;
+  pickupLongitude: number;
 
   @IsString()
   @IsNotEmpty()
-  dropoff: string;
+  pickupLatitude: number;
+
+  @IsString()
+  @IsNotEmpty()
+  dropoffLongitude: number;
+
+  @IsString()
+  @IsNotEmpty()
+  dropoffLatitude: number;
 
   @IsDate()
   pickupDate: Date;
@@ -33,11 +41,19 @@ export class CreateDeliveryDto {
 export class UpdateDeliveryDto {
   @IsString()
   @IsNotEmpty()
-  pickup: string;
+  pickupLongitude: string;
 
   @IsString()
   @IsNotEmpty()
-  dropoff: string;
+  pickupLatitude: string;
+
+  @IsString()
+  @IsNotEmpty()
+  dropoffLongitude: string;
+
+  @IsString()
+  @IsNotEmpty()
+  dropoffLatitude: string;
 
   @IsDate()
   pickupDate: Date;

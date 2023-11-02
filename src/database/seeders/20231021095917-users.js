@@ -11,9 +11,11 @@ module.exports = {
     }
     const users = [];
     for (let i = 1; i <= 200; i++) {
-      const hashedPassword = await bcrypt.hash('password', 2);
+      const hashedPassword = await bcrypt.hash('password123', 10);
       const date = randomDateBetweenNowAndThreeMonthsAgo();
       users.push({
+        first_name: `Firstname${i}`,
+        last_name: `Lastname${i}`,
         email: `user${i}@test.com`,
         first_name: `User${i}`,
         last_name: `Doe`,
@@ -26,18 +28,20 @@ module.exports = {
 
     // Add admin user
     users.push({
-      email: 'admin@test.com',
       first_name: 'Admin',
-      last_name: 'Doe',
-      password: await bcrypt.hash('password', 10),
+      last_name: 'User',
+      email: 'admin@test.com',
+      password: await bcrypt.hash('password123', 10),
       role: 'admin',
       created_at: new Date(),
       updated_at: new Date(),
     });
     // Add support user
     users.push({
+      first_name: 'Support',
+      last_name: 'User',
       email: 'support@test.com',
-      password: await bcrypt.hash('password', 10),
+      password: await bcrypt.hash('password123', 10),
       role: 'support',
       created_at: new Date(),
       updated_at: new Date(),

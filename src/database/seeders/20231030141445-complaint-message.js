@@ -12,7 +12,7 @@ module.exports = {
     const users = await queryInterface.sequelize.query(`SELECT id, role FROM users;`);
     const adminUserId = users[0].find(user => user.role === 'admin').id;
     const usersIds = users[0].map(user => user.id);
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 100; i++) {
       const randomUserId = usersIds[Math.floor(Math.random() * usersIds.length)];
       usersIds.splice(usersIds.indexOf(randomUserId), 1);
 

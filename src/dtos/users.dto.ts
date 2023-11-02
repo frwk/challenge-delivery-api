@@ -6,22 +6,16 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(9)
+  @MinLength(2)
   @MaxLength(32)
-  public password: string;
-
-  @IsString()
   public firstName: string;
 
   @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(32)
   public lastName: string;
 
-  @IsString()
-  @IsOptional()
-  public role: string;
-}
-
-export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(9)
@@ -29,11 +23,33 @@ export class UpdateUserDto {
   public password: string;
 }
 
-export class LoginDto {
+export class LoginUserDto {
   @IsEmail()
   public email: string;
 
   @IsString()
   @IsNotEmpty()
+  @MinLength(9)
+  @MaxLength(32)
+  public password: string;
+}
+
+export class UpdateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(32)
+  public firstName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(2)
+  @MaxLength(32)
+  public lastName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(9)
+  @MaxLength(32)
   public password: string;
 }

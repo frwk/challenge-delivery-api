@@ -3,6 +3,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import expressWs from 'express-ws';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
@@ -19,17 +20,20 @@ import { config } from 'dotenv';
 
 export class App {
   public app: express.Application;
+  public expressWs: expressWs.Instance;
   public env: string;
   public port: string | number;
 
-  constructor(routes: Routes[]) {
+  constructor(routes: Routes[], wsRoutes: Routes[]) {
     this.app = express();
+    this.expressWs = expressWs(this.app);
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
 
     this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
+    this.initializeWsRoutes(wsRoutes);
     this.initializeSwagger();
     this.initializeErrorHandling();
   }
@@ -78,6 +82,12 @@ export class App {
   private initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {
       this.app.use('/', route.router);
+    });
+  }
+
+  private initializeWsRoutes(routes: Routes[]) {
+    routes.forEach(route => {
+      this.expressWs.app.use('/ws', route.router);
     });
   }
 

@@ -28,16 +28,16 @@ export default class Delivery extends Model {
   id: number;
 
   @Column({ type: 'DECIMAL(9,6)', allowNull: false })
-  pickup_latitude: number;
+  pickupLatitude: number;
 
   @Column({ type: 'DECIMAL(9,6)', allowNull: false })
-  pickup_longitude: number;
+  pickupLongitude: number;
 
   @Column({ type: 'DECIMAL(9,6)', allowNull: false })
-  dropoff_latitude: number;
+  dropoffLatitude: number;
 
   @Column({ type: 'DECIMAL(9,6)', allowNull: false })
-  dropoff_longitude: number;
+  dropoffLongitude: number;
 
   @Column
   pickupDate: Date;

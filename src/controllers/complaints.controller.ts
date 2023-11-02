@@ -1,5 +1,8 @@
 import { CreateComplaintDto, UpdateComplaintDto } from '@/dtos/complaints.dto';
 import Complaint from '@/models/complaints.model';
+import Courier from '@/models/couriers.model';
+import Delivery from '@/models/deliveries.model';
+import User from '@/models/users.model';
 import { ComplaintsService } from '@/services/complaints.service';
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
@@ -9,7 +12,26 @@ export class ComplaintsController {
 
   public getComplaints = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const complaints: Complaint[] = await this.complaintsService.findAllComplaints();
+      const complaints: Complaint[] = await this.complaintsService.findAllComplaints({
+        attributes: ['id', 'createdAt', 'status'],
+        include: [
+          {
+            model: Delivery,
+            attributes: ['id', 'createdAt'],
+            include: [
+              {
+                model: Courier,
+                attributes: ['id'],
+                include: [{ model: User, attributes: ['id', 'email', 'firstName', 'lastName'] }],
+              },
+            ],
+          },
+          {
+            model: User,
+            attributes: ['id', 'email', 'firstName', 'lastName'],
+          },
+        ],
+      });
 
       res.status(200).json(complaints);
     } catch (error) {
@@ -20,7 +42,36 @@ export class ComplaintsController {
   public getComplaintById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
-      const complaint: Complaint = await this.complaintsService.findComplaintById(id);
+      const complaint: Complaint = await this.complaintsService.findComplaintById(id, {
+        attributes: ['id', 'createdAt', 'status'],
+        include: [
+          {
+            model: Delivery,
+            attributes: [
+              'id',
+              'createdAt',
+              'status',
+              'pickupLatitude',
+              'pickupLongitude',
+              'dropoffLatitude',
+              'dropoffLongitude',
+              'pickupDate',
+              'dropoffDate',
+            ],
+            include: [
+              {
+                model: Courier,
+                attributes: ['id'],
+                include: [{ model: User, attributes: ['id', 'email', 'firstName', 'lastName'] }],
+              },
+            ],
+          },
+          {
+            model: User,
+            attributes: ['id', 'email', 'firstName', 'lastName'],
+          },
+        ],
+      });
 
       res.status(200).json(complaint);
     } catch (error) {

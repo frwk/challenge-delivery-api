@@ -11,6 +11,8 @@ module.exports = {
     for (let i = 1; i <= 10; i++) {
       const hashedPassword = await bcrypt.hash('password', 10);
       users.push({
+        first_name: `Firstname${i}`,
+        last_name: `Lastname${i}`,
         email: `user${i + 10}@test.com`,
         first_name: `Courier${i}`,
         last_name: `Doe`,

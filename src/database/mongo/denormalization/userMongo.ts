@@ -4,11 +4,10 @@ import User from '@/models/users.model';
 
 export default async function (userId) {
   const user = await User.findByPk(userId, {
-    attributes: { exclude: ['password'] },
     include: [
       {
         model: Delivery,
-        attributes: ['id', 'status', 'pickup_latitude', 'pickup_longitude', 'dropoff_latitude', 'dropoff_longitude', 'createdAt'],
+        attributes: ['id', 'status', 'pickupLatitude', 'pickupLongitude', 'dropoffLatitude', 'dropoffLongitude', 'createdAt'],
         order: [['createdAt', 'DESC']],
         limit: 5,
       },

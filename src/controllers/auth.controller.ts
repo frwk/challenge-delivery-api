@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { CreateUserDto, LoginDto } from '@dtos/users.dto';
+import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { AuthService } from '@services/auth.service';
 import User from '@/models/users.model';
@@ -24,7 +24,7 @@ export class AuthController {
 
   public logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userData: LoginDto = req.body;
+      const userData: LoginUserDto = req.body;
       const { cookie, findUser } = await this.auth.login(userData);
       res.setHeader('Set-Cookie', [cookie]);
       res.status(200).json(findUser);
@@ -54,7 +54,11 @@ export class AuthController {
       if (!findUser) {
         throw new HttpException(401, 'Wrong authentication token');
       }
-      res.status(200).json(findUser);
+      const authUser = {
+        id: findUser.id,
+        role: findUser.role,
+      };
+      res.status(200).json(authUser);
     } catch (error) {
       next(error);
     }

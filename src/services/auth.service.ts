@@ -2,14 +2,15 @@ import { compare, hash } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { Service } from 'typedi';
 import { SECRET_KEY } from '@config';
-import { CreateUserDto, LoginDto } from '@dtos/users.dto';
+import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import User from '@/models/users.model';
+import { Roles } from '@/enums/roles.enum';
 
 const createToken = (user: User): TokenData => {
-  const dataStoredInToken: DataStoredInToken = { id: user.id };
-  const expiresIn: number = 60 * 60;
+  const dataStoredInToken: DataStoredInToken = { id: user.id, role: user.role as keyof typeof Roles };
+  const expiresIn: number = 60 * 60; // an hour
 
   return { expiresIn, token: sign(dataStoredInToken, SECRET_KEY, { expiresIn }) };
 };
@@ -30,7 +31,7 @@ export class AuthService {
     return createUserData;
   }
 
-  public async login(userData: LoginDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: LoginUserDto): Promise<{ cookie: string; findUser: User }> {
     const findUser: User = await User.findOne({ where: { email: userData.email } });
     if (!findUser) throw new HttpException(401, `This email ${userData.email} was not found`);
 
