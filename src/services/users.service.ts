@@ -7,12 +7,12 @@ import User from '@/models/users.model';
 @Service()
 export class UserService {
   public async findAllUser(): Promise<User[]> {
-    const allUser: User[] = await User.findAll();
+    const allUser: User[] = await User.findAll({ paranoid: false });
     return allUser;
   }
 
   public async findUserById(userId: number): Promise<User> {
-    const findUser: User = await User.findByPk(userId);
+    const findUser: User = await User.findByPk(userId, { paranoid: false });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
 
     return findUser;

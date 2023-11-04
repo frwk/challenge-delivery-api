@@ -22,13 +22,14 @@ export class ComplaintsController {
               {
                 model: Courier,
                 attributes: ['id'],
-                include: [{ model: User, attributes: ['id', 'email', 'firstName', 'lastName'] }],
+                include: [{ model: User, attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'], paranoid: false }],
               },
             ],
           },
           {
             model: User,
-            attributes: ['id', 'email', 'firstName', 'lastName'],
+            attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'],
+            paranoid: false,
           },
         ],
       });
@@ -62,13 +63,14 @@ export class ComplaintsController {
               {
                 model: Courier,
                 attributes: ['id'],
-                include: [{ model: User, attributes: ['id', 'email', 'firstName', 'lastName'] }],
+                include: [{ model: User, attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'], paranoid: false }],
               },
             ],
           },
           {
             model: User,
-            attributes: ['id', 'email', 'firstName', 'lastName'],
+            attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'],
+            paranoid: false,
           },
         ],
       });

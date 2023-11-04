@@ -9,6 +9,7 @@ import {
   Model,
   DataType,
   Default,
+  DefaultScope,
   Unique,
   DeletedAt,
   BeforeCreate,
@@ -23,6 +24,9 @@ import Reward from './rewards.model';
 import { hash } from 'bcryptjs';
 
 @Table({ tableName: 'users', underscored: true })
+@DefaultScope(() => ({
+  attributes: { exclude: ['password'] },
+}))
 export default class User extends Model {
   @PrimaryKey
   @AutoIncrement

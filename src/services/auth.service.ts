@@ -32,7 +32,7 @@ export class AuthService {
   }
 
   public async login(userData: LoginUserDto): Promise<{ cookie: string; findUser: User }> {
-    const findUser: User = await User.findOne({ where: { email: userData.email } });
+    const findUser: User = await User.findOne({ attributes: { include: ['password'] }, where: { email: userData.email } });
     if (!findUser) throw new HttpException(401, `This email ${userData.email} was not found`);
 
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
