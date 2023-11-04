@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { CreateUserDto } from '@dtos/users.dto';
-import { RequestWithUser } from '@interfaces/auth.interface';
+import { CreateUserDto, LoginDto } from '@dtos/users.dto';
+import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { AuthService } from '@services/auth.service';
 import User from '@/models/users.model';
+import { verify } from 'jsonwebtoken';
+import { SECRET_KEY } from '@config';
+import { HttpException } from '@/exceptions/HttpException';
 
 export class AuthController {
   public auth = Container.get(AuthService);
@@ -21,9 +24,8 @@ export class AuthController {
 
   public logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userData: CreateUserDto = req.body;
+      const userData: LoginDto = req.body;
       const { cookie, findUser } = await this.auth.login(userData);
-
       res.setHeader('Set-Cookie', [cookie]);
       res.status(200).json(findUser);
     } catch (error) {
@@ -33,11 +35,26 @@ export class AuthController {
 
   public logOut = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const userData: User = req.user;
-      const logOutUserData: User = await this.auth.logout(userData);
+      res.setHeader('Set-Cookie', ['Authorization=; Path=/; Max-age=0']);
+      res.status(200).json({ message: 'User logged out' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
-      res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
-      res.status(200).json(logOutUserData);
+  public isAuth = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const authorization = req.cookies['Authorization'] || (req.header('Authorization') || '').split('Bearer ')[1] || null;
+
+      if (!authorization) {
+        throw new HttpException(401, 'Authentication token missing');
+      }
+      const { id } = verify(authorization, SECRET_KEY) as DataStoredInToken;
+      const findUser = await User.findByPk(id);
+      if (!findUser) {
+        throw new HttpException(401, 'Wrong authentication token');
+      }
+      res.status(200).json(findUser);
     } catch (error) {
       next(error);
     }

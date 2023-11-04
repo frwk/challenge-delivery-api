@@ -2,7 +2,7 @@ import { compare, hash } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { Service } from 'typedi';
 import { SECRET_KEY } from '@config';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, LoginDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import User from '@/models/users.model';
@@ -15,8 +15,9 @@ const createToken = (user: User): TokenData => {
 };
 
 const createCookie = (tokenData: TokenData): string => {
-  return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
+  return `Authorization=${tokenData.token}; HttpOnly; Path=/; Max-Age=${tokenData.expiresIn}; SameSite=Lax;`;
 };
+
 @Service()
 export class AuthService {
   public async signup(userData: CreateUserDto): Promise<User> {
@@ -29,12 +30,12 @@ export class AuthService {
     return createUserData;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: LoginDto): Promise<{ cookie: string; findUser: User }> {
     const findUser: User = await User.findOne({ where: { email: userData.email } });
-    if (!findUser) throw new HttpException(409, `This email ${userData.email} was not found`);
+    if (!findUser) throw new HttpException(401, `This email ${userData.email} was not found`);
 
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
-    if (!isPasswordMatching) throw new HttpException(409, 'Password not matching');
+    if (!isPasswordMatching) throw new HttpException(401, 'Password not matching');
 
     const tokenData = createToken(findUser);
     const cookie = createCookie(tokenData);
