@@ -15,6 +15,7 @@ import { ErrorMiddleware } from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { sequelize } from './database';
 import mongoose from 'mongoose';
+import { config } from 'dotenv';
 
 export class App {
   public app: express.Application;
@@ -60,7 +61,12 @@ export class App {
 
   private initializeMiddlewares() {
     this.app.use(morgan(LOG_FORMAT, { stream }));
-    this.app.use(cors());
+    this.app.use(
+      cors({
+        origin: process.env.FRONTEND_URL,
+        credentials: true,
+      }),
+    );
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
