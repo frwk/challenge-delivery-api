@@ -8,12 +8,12 @@ export class CreateCourierDto {
   @IsEnum(CourierStatuses)
   public status: boolean;
 
-  @IsDecimal()
   @IsOptional()
+  @IsDecimal()
   public latitude: number;
 
-  @IsDecimal()
   @IsOptional()
+  @IsDecimal()
   public longitude: number;
 
   @ValidateNested()

@@ -26,17 +26,14 @@ export class CourierService {
   }
 
   public async createCourier(courierData: CreateCourierDto): Promise<Courier> {
-    const findCourier: Courier = await Courier.findOne({
-      include: {
-        model: User,
-        where: {
-          email: courierData.user.email,
-        },
+    const findCourier: User = await User.findOne({
+      where: {
+        email: courierData.user.email,
       },
     });
     if (findCourier) throw new HttpException(409, `This email ${courierData.user.email} already exists`);
     const createCourierData: Courier = await Courier.create(
-      { ...courierData },
+      { ...courierData, user: { ...courierData.user, role: 'courier' } },
       {
         include: [User],
       },

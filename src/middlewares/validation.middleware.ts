@@ -20,7 +20,14 @@ export const ValidationMiddleware = (type: any, skipMissingProperties = false, w
         next();
       })
       .catch((errors: ValidationError[]) => {
-        const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
+        const message = errors
+          .map((error: ValidationError) => {
+            const errorMessages = Object.values(error.constraints ?? {});
+            const childErrorMessages = error.children.flatMap(err => Object.values(err.constraints ?? {}));
+            return [...errorMessages, ...childErrorMessages];
+          })
+          .flat()
+          .join(', ');
         next(new HttpException(400, message));
       });
   };

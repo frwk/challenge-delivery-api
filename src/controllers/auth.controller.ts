@@ -54,11 +54,7 @@ export class AuthController {
       if (!findUser) {
         throw new HttpException(401, 'Wrong authentication token');
       }
-      const authUser = {
-        id: findUser.id,
-        role: findUser.role,
-      };
-      res.status(200).json(authUser);
+      res.status(200).json(findUser);
     } catch (error) {
       next(error);
     }
