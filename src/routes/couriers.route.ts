@@ -18,7 +18,7 @@ export class CourierRoute implements Routes {
     this.router.get(`${this.path}/map`, this.courierController.getLocations);
     this.router.get(`${this.path}/:id(\\d+)`, this.courierController.getCourierById);
     this.router.post(`${this.path}`, ValidationMiddleware(CreateCourierDto), this.courierController.createCourier);
-    this.router.put(`${this.path}/:id(\\d+)`, ValidationMiddleware(UpdateCourierDto, true), this.courierController.updateCourier);
+    this.router.patch(`${this.path}/:id(\\d+)`, ValidationMiddleware(UpdateCourierDto, true), this.courierController.updateCourier);
     this.router.delete(`${this.path}/:id(\\d+)`, this.courierController.deleteCourier);
   }
 }

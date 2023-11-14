@@ -18,6 +18,8 @@ import User from './users.model';
 import Delivery from './deliveries.model';
 import { CourierStatuses } from '@/enums/courier-statuses.enum';
 import { DataTypes } from 'sequelize';
+import userMongo from '@/database/mongo/denormalization/userMongo';
+import courierMongo from '@/database/mongo/denormalization/courierMongo';
 
 @Table({ tableName: 'couriers', underscored: true })
 export default class Courier extends Model {
@@ -54,4 +56,12 @@ export default class Courier extends Model {
 
   @HasMany(() => Delivery)
   deliveries: Delivery[];
+
+  @AfterCreate
+  @AfterUpdate
+  static async handleMongoUpdate(instance: Courier) {
+    console.log('instance', instance.dataValues);
+    await userMongo(instance.userId);
+    await courierMongo(instance.id);
+  }
 }

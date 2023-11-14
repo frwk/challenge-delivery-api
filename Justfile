@@ -77,11 +77,11 @@ restart *ARGS:
 
 # Apply database migrations
 migrate:
-	@just npx sequelize-cli db:migrate
+	@just exec node src/database/migrate up
 
 # Undo all database migrations
 undo:
-	@just npx sequelize-cli db:migrate:undo:all
+	@just exec node src/database/migrate down --to 0
 
 # Seed the database
 seed:

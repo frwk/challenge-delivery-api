@@ -1,4 +1,4 @@
-import { compare, hash } from 'bcryptjs';
+import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { Service } from 'typedi';
 import { SECRET_KEY } from '@config';
@@ -25,16 +25,14 @@ export class AuthService {
     const findUser: User = await User.findOne({ where: { email: userData.email } });
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
 
-    const hashedPassword = await hash(userData.password, 10);
-    const createUserData: User = await User.create({ ...userData, password: hashedPassword });
+    const createUserData: User = await User.create({ ...userData });
 
     return createUserData;
   }
 
   public async login(userData: LoginUserDto): Promise<{ cookie: string; findUser: User }> {
     const findUser: User = await User.findOne({ attributes: { include: ['password'] }, where: { email: userData.email } });
-    if (!findUser) throw new HttpException(401, `This email ${userData.email} was not found`);
-
+    if (!findUser) throw new HttpException(401, `Invalid credentials`);
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
     if (!isPasswordMatching) throw new HttpException(401, 'Password not matching');
 

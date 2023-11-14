@@ -13,8 +13,7 @@ export class UserService {
 
   public async findUserById(userId: number): Promise<User> {
     const findUser: User = await User.findByPk(userId, { paranoid: false });
-    if (!findUser) throw new HttpException(409, "User doesn't exist");
-
+    if (!findUser) throw new HttpException(404, "User doesn't exist");
     return findUser;
   }
 
@@ -28,7 +27,7 @@ export class UserService {
 
   public async updateUser(userId: number, userData: UpdateUserDto): Promise<User> {
     const findUser: User = await User.findByPk(userId);
-    if (!findUser) throw new HttpException(409, "User doesn't exist");
+    if (!findUser) throw new HttpException(404, "User doesn't exist");
 
     await findUser.update(userData);
 
@@ -38,7 +37,7 @@ export class UserService {
 
   public async deleteUser(userId: number): Promise<User> {
     const findUser: User = await User.findByPk(userId);
-    if (!findUser) throw new HttpException(409, "User doesn't exist");
+    if (!findUser) throw new HttpException(404, "User doesn't exist");
 
     await User.destroy({ where: { id: userId } });
 

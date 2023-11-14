@@ -1,27 +1,27 @@
 import { DeliveryStatuses } from '@/enums/delivery-statuses.enum';
-import { IsNotEmpty, IsString, IsNumber, IsDate, Length, IsEnum } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, Length, IsEnum, IsDateString, IsDecimal, IsLatitude, IsLongitude } from 'class-validator';
 
 export class CreateDeliveryDto {
-  @IsString()
+  @IsLongitude()
   @IsNotEmpty()
   pickupLongitude: number;
 
-  @IsString()
+  @IsLatitude()
   @IsNotEmpty()
   pickupLatitude: number;
 
-  @IsString()
+  @IsLongitude()
   @IsNotEmpty()
   dropoffLongitude: number;
 
-  @IsString()
+  @IsLatitude()
   @IsNotEmpty()
   dropoffLatitude: number;
 
-  @IsDate()
+  @IsDateString()
   pickupDate: Date;
 
-  @IsDate()
+  @IsDateString()
   dropoffDate: Date;
 
   @IsString()
@@ -39,26 +39,26 @@ export class CreateDeliveryDto {
 }
 
 export class UpdateDeliveryDto {
-  @IsString()
+  @IsLongitude()
   @IsNotEmpty()
-  pickupLongitude: string;
+  pickupLongitude: number;
 
-  @IsString()
+  @IsLatitude()
   @IsNotEmpty()
-  pickupLatitude: string;
+  pickupLatitude: number;
 
-  @IsString()
+  @IsLongitude()
   @IsNotEmpty()
-  dropoffLongitude: string;
+  dropoffLongitude: number;
 
-  @IsString()
+  @IsLatitude()
   @IsNotEmpty()
-  dropoffLatitude: string;
+  dropoffLatitude: number;
 
-  @IsDate()
+  @IsDateString()
   pickupDate: Date;
 
-  @IsDate()
+  @IsDateString()
   dropoffDate: Date;
 
   @IsString()

@@ -9,7 +9,7 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
+import { NODE_ENV, PORT, LOG_FORMAT, MONGO_URL } from '@config';
 // import { DB } from '@database';
 import { Routes } from '@interfaces/routes.interface';
 import { ErrorMiddleware } from '@middlewares/error.middleware';
@@ -24,13 +24,12 @@ export class App {
   public env: string;
   public port: string | number;
 
-  constructor(routes: Routes[], wsRoutes: Routes[]) {
+  constructor(routes: Routes[], wsRoutes?: Routes[]) {
     this.app = express();
     this.expressWs = expressWs(this.app);
     this.env = NODE_ENV || 'development';
     this.port = PORT || 3000;
 
-    this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeWsRoutes(wsRoutes);
@@ -38,7 +37,12 @@ export class App {
     this.initializeErrorHandling();
   }
 
-  public listen() {
+  public async initialize() {
+    await this.connectToDatabase();
+  }
+
+  public async listen() {
+    await this.initialize();
     this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
@@ -54,8 +58,12 @@ export class App {
   private async connectToDatabase() {
     try {
       await sequelize.authenticate();
-      await mongoose.connect(process.env.MONGO_URL).then(() => {
-        logger.info('Successfully connected to MongoDB');
+      await mongoose.connect(MONGO_URL);
+      mongoose.set('toJSON', {
+        virtuals: true,
+        transform: (doc, converted) => {
+          delete converted._id;
+        },
       });
       console.log('Connection has been established successfully.');
     } catch (error) {
@@ -86,7 +94,7 @@ export class App {
   }
 
   private initializeWsRoutes(routes: Routes[]) {
-    routes.forEach(route => {
+    routes?.forEach(route => {
       this.expressWs.app.use('/ws', route.router);
     });
   }
