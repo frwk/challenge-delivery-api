@@ -4,6 +4,9 @@ import { Request } from 'express';
 
 export interface DataStoredInToken {
   id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
   role: keyof typeof Roles;
 }
 

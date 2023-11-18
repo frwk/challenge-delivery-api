@@ -9,7 +9,13 @@ import User from '@/models/users.model';
 import { Roles } from '@/enums/roles.enum';
 
 const createToken = (user: User): TokenData => {
-  const dataStoredInToken: DataStoredInToken = { id: user.id, role: user.role as keyof typeof Roles };
+  const dataStoredInToken: DataStoredInToken = {
+    id: user.id,
+    firstname: user.firstName,
+    lastname: user.lastName,
+    email: user.email,
+    role: user.role as keyof typeof Roles,
+  };
   const expiresIn: number = 60 * 60; // an hour
 
   return { expiresIn, token: sign(dataStoredInToken, SECRET_KEY, { expiresIn }) };
