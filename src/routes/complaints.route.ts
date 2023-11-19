@@ -17,7 +17,7 @@ export class ComplaintRoute implements Routes {
     this.router.get(`${this.path}`, this.complaintsController.getComplaints);
     this.router.get(`${this.path}/:id(\\d+)`, this.complaintsController.getComplaintById);
     this.router.post(`${this.path}`, ValidationMiddleware(CreateComplaintDto), this.complaintsController.createComplaint);
-    this.router.put(`${this.path}/:id(\\d+)`, ValidationMiddleware(UpdateComplaintDto, true), this.complaintsController.updateComplaint);
+    this.router.patch(`${this.path}/:id(\\d+)`, ValidationMiddleware(UpdateComplaintDto, true), this.complaintsController.updateComplaint);
     this.router.get(`${this.path}/user/:userId(\\d+)`, this.complaintsController.getComplaintsByUserId);
   }
 }

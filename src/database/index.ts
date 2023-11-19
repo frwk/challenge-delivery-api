@@ -25,9 +25,12 @@ export const sequelize = new Sequelize(`postgres://${POSTGRES_USER}:${POSTGRES_P
     max: 5,
   },
   logQueryParameters: NODE_ENV === 'development',
-  logging: (query, time) => {
-    logger.info(time + 'ms' + ' ' + query);
-  },
+  logging:
+    NODE_ENV === 'test'
+      ? false
+      : (query, time) => {
+          logger.info(time + 'ms' + ' ' + query);
+        },
   benchmark: true,
   models: [User, Delivery, Courier, Complaint, Reward, ComplaintMessage],
 });

@@ -42,8 +42,8 @@ export class CourierController {
   public getCourierById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const courierId = Number(req.params.id);
-      const findOneCourierData: Courier = await this.courierService.findCourierById(courierId);
-
+      const findOneCourierData: InferSchemaType<typeof CourierSchema> = await this.courierService.findCourierById(courierId);
+      console.log(findOneCourierData);
       res.status(200).json(findOneCourierData);
     } catch (error) {
       next(error);
