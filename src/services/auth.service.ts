@@ -1,7 +1,7 @@
 import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { Service } from 'typedi';
-import { SECRET_KEY } from '@config';
+import 'dotenv/config';
 import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
@@ -18,7 +18,7 @@ const createToken = (user: User): TokenData => {
   };
   const expiresIn: number = 60 * 60; // an hour
 
-  return { expiresIn, token: sign(dataStoredInToken, SECRET_KEY, { expiresIn }) };
+  return { expiresIn, token: sign(dataStoredInToken, process.env.SECRET_KEY, { expiresIn }) };
 };
 
 const createCookie = (tokenData: TokenData): string => {

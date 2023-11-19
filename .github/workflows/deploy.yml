@@ -1,0 +1,125 @@
+on:
+  push:
+    branches: [ master, feat/deployment ]
+
+name: 🚧 Run tests, build, push to Docker Hub & deploy to VPS 🚀
+jobs:
+  build-and-test:
+    name: 🚀 Build & run tests
+    runs-on: ubuntu-latest
+    container: node:latest
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: delivery_test
+        options: >-
+          --health-cmd "pg_isready -d delivery_test -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mongo:
+        image: mongo
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: password
+        options: >-
+          --health-cmd "echo 'db.runCommand({ ping: 1 })' | mongosh -u root -p password --authenticationDatabase admin --quiet"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+        env:
+          POSTGRES_HOST: db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DATABASE: delivery_test
+          POSTGRES_PORT: 5432
+          MONGO_URL: mongodb://root:password@mongo:27017/delivery_test?authSource=admin
+          LOG_DIR: ../logs
+          SECRET_KEY: secret
+
+  push_to_registry_and_deploy:
+    name: 🚀 Push Docker image to Docker Hub and deploy to Droplet
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🏗 Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: floperrier/challenge-delivery
+
+      - name: 🚧 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          target: prod
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Deploy to Droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_DROPLET_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+
+            if [ ! "$(docker ps | grep db)" ]; then
+              if [ "$(docker ps -a | grep db)" ]; then
+                docker rm db
+              fi
+              docker run -d \
+                --network challenge-delivery \
+                --name db \
+                -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+                -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+                -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+                -v pgdata:/var/lib/postgresql/data \
+                postgres
+            fi
+            if [ ! "$(docker ps | grep mongo)" ]; then
+              if [ "$(docker ps -a | grep mongo)" ]; then
+                docker rm mongo
+              fi
+              docker run -d \
+                --network challenge-delivery \
+                --name mongo \
+                -e MONGO_INITDB_ROOT_USERNAME=${{ secrets.MONGO_USER }} \
+                -e MONGO_INITDB_ROOT_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
+                -v mongodata:/data/db \
+                mongo
+            fi
+            docker pull floperrier/challenge-delivery:feat-deployment
+            if [ "$(docker ps -a | grep challenge-delivery-container)" ]; then
+              docker stop challenge-delivery-container
+              docker rm challenge-delivery-container
+            fi
+            docker run -d --network challenge-delivery --name challenge-delivery-container -p 80:3000 \
+              -e DOTENV_KEY="dotenv://:key_81ac2ea153b19a10720661a38d241a76a56d61ab61e1b97cc3f5ba07811bf56d@dotenv.org/vault/.env.vault?environment=production" \
+              floperrier/challenge-delivery:feat-deployment

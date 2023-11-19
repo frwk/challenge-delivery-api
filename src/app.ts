@@ -9,14 +9,12 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { NODE_ENV, PORT, LOG_FORMAT, MONGO_URL } from '@config';
-// import { DB } from '@database';
 import { Routes } from '@interfaces/routes.interface';
 import { ErrorMiddleware } from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import { sequelize } from './database';
 import mongoose from 'mongoose';
-import { config } from 'dotenv';
+import 'dotenv/config';
 
 export class App {
   public app: express.Application;
@@ -27,8 +25,8 @@ export class App {
   constructor(routes: Routes[], wsRoutes?: Routes[]) {
     this.app = express();
     this.expressWs = expressWs(this.app);
-    this.env = NODE_ENV || 'development';
-    this.port = PORT || 3000;
+    this.env = process.env.NODE_ENV || 'development';
+    this.port = process.env.PORT || 3000;
 
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
@@ -58,7 +56,7 @@ export class App {
   private async connectToDatabase() {
     try {
       await sequelize.authenticate();
-      await mongoose.connect(MONGO_URL);
+      await mongoose.connect(process.env.MONGO_URL);
       mongoose.set('toJSON', {
         virtuals: true,
         transform: (doc, converted) => {
@@ -72,7 +70,7 @@ export class App {
   }
 
   private initializeMiddlewares() {
-    this.app.use(morgan(LOG_FORMAT, { stream }));
+    this.app.use(morgan(process.env.LOG_FORMAT, { stream }));
     this.app.use(
       cors({
         origin: process.env.FRONTEND_URL,

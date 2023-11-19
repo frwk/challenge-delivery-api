@@ -16,3 +16,8 @@ jest.config.js
 # docker
 Dockerfile
 docker-compose.yml
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
