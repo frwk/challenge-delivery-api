@@ -5,22 +5,16 @@ services:
   node:
     build:
       context: ./
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      target: dev
     ports:
-      - "3000:3000"
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_DB: ${POSTGRES_DB:-delivery}
+      - "80:3000"
     volumes:
       - ./:/app
       - /app/node_modules
     restart: "unless-stopped"
     links:
       - db
-    depends_on:
-      db:
-        condition: service_healthy
 
   db:
     image: postgres
@@ -38,12 +32,6 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./docker/postgres:/docker-entrypoint-initdb.d
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-
   mongo:
     image: mongo
     restart: always
@@ -55,6 +43,12 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-root}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-password}
 
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
   mongo-express:
     image: mongo-express
     restart: always
@@ -65,7 +59,6 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD:-password}
       ME_CONFIG_MONGODB_SERVER: mongo
       ME_CONFIG_MONGODB_PORT: "27017"
-
 volumes:
   data:
     driver: local
