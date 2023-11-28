@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ master, feat/deployment ]
+    branches: [ master ]
 
 name: 🚧 Run tests, build, push to Docker Hub & deploy to VPS 🚀
 jobs:
