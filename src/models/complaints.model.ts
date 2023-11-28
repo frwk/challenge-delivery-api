@@ -17,9 +17,15 @@ import Delivery from './deliveries.model';
 import ComplaintMessage from './complaint-message.model';
 import { ComplaintStatuses } from '@/enums/complaint-statuses.enum';
 import { DataTypes } from 'sequelize';
+import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
 
 @Table({ tableName: 'complaints', underscored: true })
 export default class Complaint extends Model {
+  constructor(...args) {
+    super(...args);
+    restoreSequelizeAttributesOnClass(new.target, this);
+  }
+
   @PrimaryKey
   @AutoIncrement
   @Column

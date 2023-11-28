@@ -22,12 +22,18 @@ import { Roles } from '@/enums/roles.enum';
 import Complaint from './complaints.model';
 import Reward from './rewards.model';
 import { hash } from 'bcryptjs';
+import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
 
 @Table({ tableName: 'users', underscored: true })
 @DefaultScope(() => ({
   attributes: { exclude: ['password'] },
 }))
 export default class User extends Model {
+  constructor(...args) {
+    super(...args);
+    restoreSequelizeAttributesOnClass(new.target, this);
+  }
+
   @PrimaryKey
   @AutoIncrement
   @Column

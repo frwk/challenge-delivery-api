@@ -1,9 +1,15 @@
 import { AutoIncrement, BelongsTo, Column, CreatedAt, ForeignKey, PrimaryKey, Table, UpdatedAt, Model } from 'sequelize-typescript';
 import User from './users.model';
 import Complaint from './complaints.model';
+import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
 
 @Table({ tableName: 'complaint_messages', underscored: true })
 export default class ComplaintMessage extends Model {
+  constructor(...args) {
+    super(...args);
+    restoreSequelizeAttributesOnClass(new.target, this);
+  }
+
   @PrimaryKey
   @AutoIncrement
   @Column

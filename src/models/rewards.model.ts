@@ -1,8 +1,14 @@
 import { AutoIncrement, BelongsTo, Column, CreatedAt, ForeignKey, PrimaryKey, Table, UpdatedAt, Model, DeletedAt } from 'sequelize-typescript';
 import User from './users.model';
+import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
 
 @Table({ tableName: 'rewards', underscored: true })
 export default class Reward extends Model {
+  constructor(...args) {
+    super(...args);
+    restoreSequelizeAttributesOnClass(new.target, this);
+  }
+
   @PrimaryKey
   @AutoIncrement
   @Column

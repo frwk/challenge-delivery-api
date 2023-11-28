@@ -19,9 +19,15 @@ import { DataTypes } from 'sequelize';
 import { DeliveryStatuses } from '@/enums/delivery-statuses.enum';
 import userMongo from '@/database/mongo/denormalization/userMongo';
 import courierMongo from '@/database/mongo/denormalization/courierMongo';
+import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
 
 @Table({ tableName: 'deliveries', underscored: true })
 export default class Delivery extends Model {
+  constructor(...args) {
+    super(...args);
+    restoreSequelizeAttributesOnClass(new.target, this);
+  }
+
   @PrimaryKey
   @AutoIncrement
   @Column

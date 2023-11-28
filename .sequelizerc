@@ -1,8 +1,9 @@
 const path = require('path');
+require('dotenv').config()
 
 module.exports = {
-  config: path.resolve('src', 'config', 'sequelize-cli.cjs'),
-  'models-path': path.resolve('src', 'models'),
-  'seeders-path': path.resolve('src', 'database', 'seeders'),
-  'migrations-path': path.resolve('src', 'database',  'migrations'),
-};
+   'config': process.env.NODE_ENV === 'production' ? path.resolve('./dist/config', 'sequelize-cli.cjs') : path.resolve('src', 'config', 'sequelize-cli.cjs'),
+   'models-path': process.env.NODE_ENV === 'production' ? path.resolve('./dist/database', 'models') : path.resolve('src', 'models'),
+   'seeders-path': process.env.NODE_ENV === 'production' ? path.resolve('./dist/database', 'seeders') : path.resolve('src', 'database', 'seeders'),
+   'migrations-path': process.env.NODE_ENV === 'production' ? path.resolve('./dist/database', 'migrations') : path.resolve('src', 'database', 'migrations'),
+}

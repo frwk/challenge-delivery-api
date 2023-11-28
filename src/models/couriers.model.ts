@@ -20,9 +20,15 @@ import { CourierStatuses } from '@/enums/courier-statuses.enum';
 import { DataTypes } from 'sequelize';
 import userMongo from '@/database/mongo/denormalization/userMongo';
 import courierMongo from '@/database/mongo/denormalization/courierMongo';
+import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
 
 @Table({ tableName: 'couriers', underscored: true })
 export default class Courier extends Model {
+  constructor(...args) {
+    super(...args);
+    restoreSequelizeAttributesOnClass(new.target, this);
+  }
+
   @PrimaryKey
   @AutoIncrement
   @Column

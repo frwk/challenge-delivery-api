@@ -22,7 +22,7 @@ const createToken = (user: User): TokenData => {
 };
 
 const createCookie = (tokenData: TokenData): string => {
-  return `Authorization=${tokenData.token}; HttpOnly; Path=/; Max-Age=${tokenData.expiresIn}; SameSite=Lax;`;
+  return `Authorization=${tokenData.token}; HttpOnly; Path=/; Max-Age=${tokenData.expiresIn}; Secure; SameSite=Lax;`;
 };
 
 @Service()

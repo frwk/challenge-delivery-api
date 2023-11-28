@@ -18,7 +18,7 @@ export class UserService {
   }
 
   public async createUser(userData: CreateUserDto): Promise<User> {
-    const findUser: User = await User.findOne({ where: { email: userData.email } });
+    const findUser: User = await User.findOne({ where: { email: userData.email }, raw: true, nest: true });
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
 
     const createUserData: User = await User.create({ ...userData });

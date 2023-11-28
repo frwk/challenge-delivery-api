@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 name: 🚧 Run tests, build, push to Docker Hub & deploy to VPS 🚀
 jobs:
@@ -115,11 +115,13 @@ jobs:
                 -v mongodata:/data/db \
                 mongo
             fi
-            docker pull floperrier/challenge-delivery:feat-deployment
+            docker pull floperrier/challenge-delivery:main
             if [ "$(docker ps -a | grep challenge-delivery-container)" ]; then
               docker stop challenge-delivery-container
               docker rm challenge-delivery-container
             fi
-            docker run -d --network challenge-delivery --name challenge-delivery-container -p 80:3000 \
+            docker run -d --network challenge-delivery --name challenge-delivery-container -p 3001:3000 \
               -e DOTENV_KEY="dotenv://:key_81ac2ea153b19a10720661a38d241a76a56d61ab61e1b97cc3f5ba07811bf56d@dotenv.org/vault/.env.vault?environment=production" \
-              floperrier/challenge-delivery:feat-deployment
+              floperrier/challenge-delivery:main
+
+            docker exec challenge-delivery-container node dist/database/migrate up
