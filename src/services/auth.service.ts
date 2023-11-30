@@ -22,7 +22,9 @@ const createToken = (user: User): TokenData => {
 };
 
 const createCookie = (tokenData: TokenData): string => {
-  return `Authorization=${tokenData.token}; HttpOnly; Path=/; Max-Age=${tokenData.expiresIn}; Secure; SameSite=Lax;`;
+  return `Authorization=${tokenData.token}; HttpOnly; Path=/; Max-Age=${tokenData.expiresIn}; Secure; SameSite=Lax; ${
+    process.env.NODE_ENV === 'production' ? `domain=${process.env.FRONTEND_URL.split('.').slice(-2).join('.')}` : ''
+  }`;
 };
 
 @Service()
