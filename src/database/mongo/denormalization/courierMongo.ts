@@ -14,17 +14,20 @@ export default async function (courierId) {
       },
       {
         model: User,
-        attributes: ['firstName', 'lastName'],
+        attributes: ['id', 'firstName', 'lastName'],
       },
     ],
   });
   await CourierMongo.deleteOne({ _id: courierId });
 
+  const { id: user_id, ...courierUser } = courier.user.dataValues;
+
   const courierMongo = new CourierMongo({
     _id: courierId,
     ...courier.dataValues,
     deliveries: courier.deliveries.map(delivery => delivery.dataValues),
-    ...courier.user.dataValues,
+    user_id,
+    ...courierUser,
   });
   await courierMongo.save();
 }
