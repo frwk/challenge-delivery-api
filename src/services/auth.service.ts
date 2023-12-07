@@ -7,6 +7,7 @@ import { HttpException } from '@/exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import User from '@/models/users.model';
 import { Roles } from '@/enums/roles.enum';
+import Courier from '@/models/couriers.model';
 
 const createToken = (user: User): TokenData => {
   const dataStoredInToken: DataStoredInToken = {
@@ -39,7 +40,11 @@ export class AuthService {
   }
 
   public async login(userData: LoginUserDto): Promise<{ cookie: string; findUser: User }> {
-    const findUser: User = await User.findOne({ attributes: { include: ['password'] }, where: { email: userData.email } });
+    const findUser: User = await User.findOne({
+      attributes: { include: ['password'] },
+      where: { email: userData.email },
+      include: [{ model: Courier }],
+    });
     if (!findUser) throw new HttpException(401, `Invalid credentials`);
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
     if (!isPasswordMatching) throw new HttpException(401, 'Password not matching');

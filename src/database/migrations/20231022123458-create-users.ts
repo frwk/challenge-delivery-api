@@ -29,6 +29,10 @@ export const up: Migration = async ({ context: sequelize }) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    notification_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,

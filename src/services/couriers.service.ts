@@ -1,6 +1,6 @@
 import { hash } from 'bcryptjs';
 import { Service } from 'typedi';
-import { CreateCourierDto } from '@dtos/couriers.dto';
+import { CreateCourierDto, UpdateCourierDto } from '@dtos/couriers.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import Courier from '@/models/couriers.model';
 import User from '@/models/users.model';
@@ -40,12 +40,18 @@ export class CourierService {
     return createCourierData;
   }
 
-  public async updateCourier(courierId: number, courierData: CreateCourierDto): Promise<Courier> {
+  public async updateCourier(courierId: number, courierData: UpdateCourierDto): Promise<Courier> {
     const findCourier: Courier = await Courier.findByPk(courierId);
     if (!findCourier) throw new HttpException(404, "Courier doesn't exist");
-    await Courier.update(courierData, { where: { id: courierId } });
-    const updateCourier: Courier = await Courier.findByPk(courierId);
-    return updateCourier.dataValues;
+    const updatedCourier = await findCourier.update(courierData);
+
+    if (courierData.user) {
+      const user = await User.findByPk(updatedCourier.userId);
+      if (!user) throw new HttpException(404, "User doesn't exist");
+      await User.update(courierData.user, { where: { id: updatedCourier.userId }, individualHooks: true });
+    }
+
+    return updatedCourier;
   }
 
   public async deleteCourier(courierId: number): Promise<Courier> {

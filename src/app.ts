@@ -15,6 +15,8 @@ import { logger, stream } from '@utils/logger';
 import { sequelize } from './database';
 import mongoose from 'mongoose';
 import 'dotenv/config';
+import { applicationDefault, initializeApp } from 'firebase-admin/app';
+import { getMessaging } from 'firebase-admin/messaging';
 
 export class App {
   public app: express.Application;
@@ -28,6 +30,9 @@ export class App {
     this.env = process.env.NODE_ENV || 'development';
     this.port = process.env.PORT || 3000;
 
+    // const app = initializeApp({
+    //   credential: applicationDefault(),
+    // });
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeWsRoutes(wsRoutes);

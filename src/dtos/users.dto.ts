@@ -1,4 +1,6 @@
-import { IsString, IsEmail, IsNotEmpty, MinLength, MaxLength, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsEmail, IsNotEmpty, MinLength, MaxLength, IsOptional, ValidateNested } from 'class-validator';
+import { UpdateCourierDto } from './couriers.dto';
 
 export class CreateUserDto {
   @IsEmail()
@@ -21,6 +23,10 @@ export class CreateUserDto {
   @MinLength(9)
   @MaxLength(32)
   public password: string;
+
+  @IsString()
+  @IsOptional()
+  public notificationToken: string;
 }
 
 export class LoginUserDto {
@@ -35,21 +41,34 @@ export class LoginUserDto {
 }
 
 export class UpdateUserDto {
+  @IsEmail()
+  @IsOptional()
+  public email: string;
+
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(2)
   @MaxLength(32)
   public firstName: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(2)
   @MaxLength(32)
   public lastName: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(9)
   @MaxLength(32)
   public password: string;
+
+  @IsString()
+  @IsOptional()
+  public notificationToken: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UpdateCourierDto)
+  courier: UpdateCourierDto;
 }

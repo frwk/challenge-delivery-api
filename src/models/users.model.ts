@@ -16,6 +16,7 @@ import {
   BeforeUpdate,
   BeforeBulkCreate,
   BeforeBulkUpdate,
+  HasOne,
 } from 'sequelize-typescript';
 import Delivery from './deliveries.model';
 import { Roles } from '@/enums/roles.enum';
@@ -23,6 +24,7 @@ import Complaint from './complaints.model';
 import Reward from './rewards.model';
 import { hash } from 'bcryptjs';
 import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
+import Courier from './couriers.model';
 
 @Table({ tableName: 'users', underscored: true })
 @DefaultScope(() => ({
@@ -56,6 +58,9 @@ export default class User extends Model {
   @Column(DataType.ENUM(Roles.CLIENT, Roles.COURIER, Roles.ADMIN, Roles.SUPPORT))
   role: string;
 
+  @Column({ allowNull: true })
+  notificationToken: string;
+
   @CreatedAt
   createdAt: Date;
 
@@ -74,13 +79,23 @@ export default class User extends Model {
   @HasMany(() => Reward)
   rewards: Reward[];
 
+  @HasOne(() => Courier, 'user_id')
+  courier: Courier;
+
   @BeforeCreate
   @BeforeUpdate
-  @BeforeBulkCreate
-  @BeforeBulkUpdate
   static async hashPassword(instance: User) {
     if (instance.changed('password')) {
       instance.password = await hash(instance.password, 10);
+    }
+  }
+
+  @BeforeBulkCreate
+  static async hashPasswordBulk(instances: User[], options: any) {
+    for (const instance of instances) {
+      if (instance.changed('password')) {
+        instance.password = await hash(instance.password, 10);
+      }
     }
   }
 }
