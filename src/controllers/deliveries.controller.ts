@@ -7,7 +7,7 @@ import { DeliveryService } from '@/services/deliveries.service';
 import { getCoordinates, getDistanceInMeters } from '@/utils/helpers';
 import { NextFunction, Request, Response } from 'express';
 import { Op } from 'sequelize';
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize } from 'sequelize';
 import { Container } from 'typedi';
 
 export class DeliveryController {
@@ -93,10 +93,6 @@ export class DeliveryController {
         ],
         attributes: ['id'],
       });
-      console.log(
-        'TOKENS',
-        nearbyCouriers.map(courier => courier.user.notificationToken),
-      );
       const message = {
         notification: {
           title: 'Demande de livraison',
