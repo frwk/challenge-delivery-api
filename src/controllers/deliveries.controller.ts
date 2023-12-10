@@ -1,6 +1,7 @@
 import { CreateDeliveryDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
 import Delivery from '@/models/deliveries.model';
 import { DeliveryService } from '@/services/deliveries.service';
+import { getCoordinates } from '@/utils/helpers';
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
 
@@ -31,8 +32,12 @@ export class DeliveryController {
   public createDelivery = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data: CreateDeliveryDto = req.body;
+      if (data.pickupAddress && data.dropoffAddress) {
+        const [pickupLocation, dropoffLocation] = await Promise.all([getCoordinates(data.pickupAddress), getCoordinates(data.dropoffAddress)]);
+        [data.pickupLongitude, data.pickupLatitude] = pickupLocation;
+        [data.dropoffLongitude, data.dropoffLatitude] = dropoffLocation;
+      }
       const delivery: Delivery = await this.deliveryService.createDelivery(data);
-
       res.status(201).json(delivery);
     } catch (error) {
       next(error);
