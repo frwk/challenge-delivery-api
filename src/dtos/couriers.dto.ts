@@ -9,12 +9,14 @@ export class CreateCourierDto {
   public status: boolean;
 
   @IsOptional()
+  @Type(() => String)
   @IsDecimal()
-  public latitude: number;
+  public latitude: string;
 
   @IsOptional()
+  @Type(() => String)
   @IsDecimal()
-  public longitude: number;
+  public longitude: string;
 
   @ValidateNested()
   @Type(() => CreateUserDto)
@@ -27,13 +29,16 @@ export class UpdateCourierDto {
   public status: boolean;
 
   @IsOptional()
+  @Type(() => String)
   @IsDecimal()
-  public latitude: number;
+  public latitude: string;
 
   @IsOptional()
+  @Type(() => String)
   @IsDecimal()
-  public longitude: number;
+  public longitude: string;
 
+  @IsOptional()
   @ValidateNested()
   @Type(() => UpdateUserDto)
   user: UpdateUserDto;

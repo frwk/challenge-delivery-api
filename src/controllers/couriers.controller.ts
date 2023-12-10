@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { CreateCourierDto } from '@dtos/couriers.dto';
+import { CreateCourierDto, UpdateCourierDto } from '@dtos/couriers.dto';
 import { CourierService } from '@services/couriers.service';
 import Courier from '@/models/couriers.model';
 import CourierMongo, { CourierSchema } from '@/database/mongo/models/Courier';
@@ -64,7 +64,7 @@ export class CourierController {
   public updateCourier = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const courierId = Number(req.params.id);
-      const courierData: CreateCourierDto = req.body;
+      const courierData: UpdateCourierDto = req.body;
       const updateCourierData: Courier = await this.courierService.updateCourier(courierId, courierData);
 
       res.status(200).json(updateCourierData);

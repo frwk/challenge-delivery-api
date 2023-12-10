@@ -17,10 +17,11 @@ services:
       - db
 
   db:
-    image: postgres
+    image: postgis/postgis:16-3.4
     restart: always
+    platform: linux/amd64
     environment:
-      POSTGRES_MULTIPLE_DATABASES: delivery,delivery_test
+      POSTGRES_DB: ${POSTGRES_DATABASE:-delivery}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     healthcheck:
@@ -30,7 +31,6 @@ services:
       retries: 5
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./docker/postgres:/docker-entrypoint-initdb.d
 
   mongo:
     image: mongo

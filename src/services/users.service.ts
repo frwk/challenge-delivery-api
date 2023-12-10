@@ -3,6 +3,8 @@ import { Service } from 'typedi';
 import { CreateUserDto, UpdateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import User from '@/models/users.model';
+import Courier from '@/models/couriers.model';
+import { Attributes, FindOptions } from 'sequelize';
 
 @Service()
 export class UserService {
@@ -11,8 +13,8 @@ export class UserService {
     return allUser;
   }
 
-  public async findUserById(userId: number): Promise<User> {
-    const findUser: User = await User.findByPk(userId, { paranoid: false });
+  public async findUserById(userId: number, options?: FindOptions<Attributes<User>>): Promise<User> {
+    const findUser: User = await User.findByPk(userId, options);
     if (!findUser) throw new HttpException(404, "User doesn't exist");
     return findUser;
   }
@@ -28,11 +30,13 @@ export class UserService {
   public async updateUser(userId: number, userData: UpdateUserDto): Promise<User> {
     const findUser: User = await User.findByPk(userId);
     if (!findUser) throw new HttpException(404, "User doesn't exist");
-
-    await findUser.update(userData);
-
-    const updateUser: User = await User.findByPk(userId);
-    return updateUser;
+    const updatedUser = await findUser.update(userData);
+    if (userData.courier) {
+      const courier = await updatedUser.getCourier();
+      if (!courier) throw new HttpException(404, "Courier doesn't exist");
+      await courier.update(userData.courier);
+    }
+    return findUser;
   }
 
   public async deleteUser(userId: number): Promise<User> {

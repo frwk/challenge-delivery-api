@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateUserDto, UpdateUserDto } from '@dtos/users.dto';
 import { UserService } from '@services/users.service';
 import User from '@/models/users.model';
 
@@ -42,9 +42,9 @@ export class UserController {
   public updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = Number(req.params.id);
-      const userData: CreateUserDto = req.body;
+      const userData: UpdateUserDto = req.body;
       const updateUserData: User = await this.userService.updateUser(userId, userData);
-
+      console.log('updateUserData', userData);
       res.status(200).json(updateUserData);
     } catch (error) {
       next(error);

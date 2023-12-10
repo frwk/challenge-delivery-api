@@ -7,6 +7,7 @@ import User from '@/models/users.model';
 import { verify } from 'jsonwebtoken';
 import { HttpException } from '@/exceptions/HttpException';
 import 'dotenv/config';
+import Courier from '@/models/couriers.model';
 
 export class AuthController {
   public auth = Container.get(AuthService);
@@ -50,7 +51,10 @@ export class AuthController {
         throw new HttpException(401, 'Authentication token missing');
       }
       const { id } = verify(authorization, process.env.SECRET_KEY) as DataStoredInToken;
-      const findUser = await User.findByPk(id);
+      const findUser = await User.findByPk(id, {
+        include: { model: Courier },
+        paranoid: false,
+      });
       if (!findUser) {
         throw new HttpException(401, 'Wrong authentication token');
       }

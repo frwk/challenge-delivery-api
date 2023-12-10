@@ -19,5 +19,6 @@ export class DeliveryRoute implements Routes {
     this.router.post(`${this.path}`, ValidationMiddleware(CreateDeliveryDto), this.deliveryController.createDelivery);
     this.router.patch(`${this.path}/:id(\\d+)`, ValidationMiddleware(CreateDeliveryDto, true), this.deliveryController.updateDelivery);
     this.router.delete(`${this.path}/:id(\\d+)`, this.deliveryController.deleteDelivery);
+    this.router.get(`${this.path}/test/:id(\\d+)`, this.deliveryController.sendNewDeliveryNotification);
   }
 }
