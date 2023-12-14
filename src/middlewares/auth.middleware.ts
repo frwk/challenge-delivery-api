@@ -13,6 +13,9 @@ const getAuthorization = req => {
   const header = req.header('Authorization');
   if (header) return header.split('Bearer ')[1];
 
+  const token = req.query.token;
+  if (token) return token;
+
   return null;
 };
 
