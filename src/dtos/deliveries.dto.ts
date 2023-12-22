@@ -1,17 +1,5 @@
 import { DeliveryStatuses } from '@/enums/delivery-statuses.enum';
-import {
-  IsNotEmpty,
-  IsString,
-  IsNumber,
-  Length,
-  IsEnum,
-  IsDateString,
-  IsDecimal,
-  IsLatitude,
-  IsLongitude,
-  ValidateIf,
-  IsOptional,
-} from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, Length, IsEnum, IsDateString, IsLatitude, IsLongitude, ValidateIf, IsOptional } from 'class-validator';
 
 export class CreateDeliveryDto {
   @IsLongitude()
@@ -64,37 +52,43 @@ export class CreateDeliveryDto {
 
 export class UpdateDeliveryDto {
   @IsLongitude()
-  @IsNotEmpty()
+  @IsOptional()
   pickupLongitude: number;
 
   @IsLatitude()
-  @IsNotEmpty()
+  @IsOptional()
   pickupLatitude: number;
 
   @IsLongitude()
-  @IsNotEmpty()
+  @IsOptional()
   dropoffLongitude: number;
 
   @IsLatitude()
-  @IsNotEmpty()
+  @IsOptional()
   dropoffLatitude: number;
 
   @IsDateString()
+  @IsOptional()
   pickupDate: Date;
 
   @IsDateString()
+  @IsOptional()
   dropoffDate: Date;
 
   @IsString()
   @Length(4, 4)
+  @IsOptional()
   confirmationCode: string;
 
   @IsEnum(DeliveryStatuses)
+  @IsOptional()
   status: string;
 
   @IsNumber()
+  @IsOptional()
   clientId: number;
 
   @IsNumber()
+  @IsOptional()
   courierId: number;
 }

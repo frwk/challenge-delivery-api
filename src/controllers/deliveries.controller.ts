@@ -3,6 +3,7 @@ import { CreateDeliveryDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
 import { Roles } from '@/enums/roles.enum';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
+import { DeliveryWithDistances } from '@/interfaces/delivery.interface';
 import Courier from '@/models/couriers.model';
 import Delivery from '@/models/deliveries.model';
 import User from '@/models/users.model';
@@ -47,10 +48,10 @@ export class DeliveryController {
     try {
       const courierId = Number(req.params.courierId);
       const courier = await Courier.findByPk(courierId);
+      if (!courier) throw new HttpException(404, 'Courier not found');
       if (req.user.role !== Roles.ADMIN) {
         if (req.user.id !== courier.userId) throw new HttpException(403, 'Access denied');
       }
-      if (!courier) throw new HttpException(404, 'Courier not found');
       const deliveries: Delivery[] = await Delivery.findAll({
         where: { courierId: courierId },
       });
@@ -91,6 +92,7 @@ export class DeliveryController {
     try {
       const id = Number(req.params.id);
       const data: UpdateDeliveryDto = req.body;
+      console.log(data, 'PROUT');
       const delivery: Delivery = await this.deliveryService.updateDelivery(id, data);
 
       res.status(200).json(delivery);
@@ -148,5 +150,58 @@ export class DeliveryController {
       tokens: nearbyCouriers.map(courier => courier.user.notificationToken),
     };
     await FirebaseAdmin.getInstance().getMessaging().sendMulticast(message);
+  };
+
+  public getNearbyDeliveries = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const courierId = Number(req.params.courierId);
+      const courier = await Courier.findByPk(courierId);
+      if (!courier) throw new HttpException(404, 'Courier not found');
+      const deliveries: Delivery[] = await Delivery.findAll({
+        where: Sequelize.literal(
+          `ST_Distance(ST_MakePoint(pickup_longitude, pickup_latitude)::geography, ST_MakePoint(${courier.longitude}, ${courier.latitude})::geography) <= 15000000
+          AND status = 'pending'
+          `,
+        ),
+        include: [
+          {
+            model: User,
+            attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'],
+          },
+        ],
+      });
+      const deliveriesWithDistances: DeliveryWithDistances[] = deliveries.map(delivery => {
+        const distance = getDistanceInMeters(delivery.pickupLatitude, delivery.pickupLongitude, delivery.dropoffLatitude, delivery.dropoffLongitude);
+        const distanceToPickup = getDistanceInMeters(courier.latitude, courier.longitude, delivery.pickupLatitude, delivery.pickupLongitude);
+        return { ...delivery.get({ plain: true }), distance, distanceToPickup };
+      });
+      res.status(200).json(deliveriesWithDistances);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getCourierCurrentDelivery = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const courierId = Number(req.params.courierId);
+      const courier = await Courier.findByPk(courierId);
+      if (!courier) throw new HttpException(404, 'Courier not found');
+      if (req.user.role !== Roles.ADMIN) {
+        if (req.user.id !== courier.userId) throw new HttpException(403, 'Access denied');
+      }
+      const delivery: Delivery = await Delivery.findOne({
+        where: { courierId: courierId, status: { [Op.notIn]: ['pending', 'delivered', 'cancelled'] } },
+        include: [
+          {
+            model: User,
+            attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'],
+          },
+        ],
+      });
+      if (!delivery) throw new HttpException(404, 'No current delivery');
+      res.status(200).json(delivery);
+    } catch (error) {
+      next(error);
+    }
   };
 }

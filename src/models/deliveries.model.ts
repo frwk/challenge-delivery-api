@@ -55,7 +55,15 @@ export default class Delivery extends Model {
   confirmationCode: string;
 
   @Default(DeliveryStatuses.PENDING)
-  @Column(DataTypes.ENUM(DeliveryStatuses.PENDING, DeliveryStatuses.PICKED_UP, DeliveryStatuses.DELIVERED, DeliveryStatuses.CANCELLED))
+  @Column(
+    DataTypes.ENUM(
+      DeliveryStatuses.PENDING,
+      DeliveryStatuses.ACCEPTED,
+      DeliveryStatuses.PICKED_UP,
+      DeliveryStatuses.DELIVERED,
+      DeliveryStatuses.CANCELLED,
+    ),
+  )
   status: string;
 
   @Column
@@ -87,7 +95,7 @@ export default class Delivery extends Model {
   @AfterCreate
   @AfterUpdate
   static async handleMongoUpdate(instance: Delivery) {
-    await userMongo(instance.clientId);
-    await courierMongo(instance.courierId);
+    if (instance.clientId) await userMongo(instance.clientId);
+    if (instance.courierId) await courierMongo(instance.courierId);
   }
 }
