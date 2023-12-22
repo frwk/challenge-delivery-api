@@ -31,23 +31,61 @@ export class CreateDeliveryDto {
   dropoffAddress: string;
 
   @IsDateString()
+  @IsOptional()
   pickupDate: Date;
 
   @IsDateString()
+  @IsOptional()
   dropoffDate: Date;
 
   @IsString()
   @Length(4, 4)
+  @IsOptional()
   confirmationCode: string;
 
   @IsEnum(DeliveryStatuses)
+  @IsOptional()
   status: string;
 
   @IsNumber()
   clientId: number;
 
   @IsNumber()
+  @IsOptional()
   courierId: number;
+}
+
+export class CreateDeliveryAsClientDto {
+  @IsLongitude()
+  @IsNotEmpty()
+  @ValidateIf(o => !o.pickupAddress)
+  pickupLongitude: number;
+
+  @IsLatitude()
+  @IsNotEmpty()
+  @ValidateIf(o => !o.pickupAddress)
+  pickupLatitude: number;
+
+  @IsLongitude()
+  @IsNotEmpty()
+  @ValidateIf(o => !o.dropoffAddress)
+  dropoffLongitude: number;
+
+  @IsLatitude()
+  @IsNotEmpty()
+  @ValidateIf(o => !o.dropoffAddress)
+  dropoffLatitude: number;
+
+  @IsString()
+  @IsNotEmpty()
+  pickupAddress: string;
+
+  @IsString()
+  @IsNotEmpty()
+  dropoffAddress: string;
+
+  @IsNumber()
+  clientId: number;
 }
 
 export class UpdateDeliveryDto {

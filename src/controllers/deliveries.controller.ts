@@ -88,11 +88,31 @@ export class DeliveryController {
     }
   };
 
+  public createDeliveryAsClient = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const client = await User.findByPk(req.body.clientId);
+      if (!client) throw new HttpException(404, 'User not found');
+      if (req.user.role !== Roles.ADMIN) {
+        if (req.user.id !== client.id) throw new HttpException(403, 'Access denied');
+      }
+      const data: CreateDeliveryDto = req.body;
+      if (data.pickupAddress && data.dropoffAddress) {
+        const [pickupLocation, dropoffLocation] = await Promise.all([getCoordinates(data.pickupAddress), getCoordinates(data.dropoffAddress)]);
+        [data.pickupLongitude, data.pickupLatitude] = pickupLocation;
+        [data.dropoffLongitude, data.dropoffLatitude] = dropoffLocation;
+      }
+      const delivery: Delivery = await this.deliveryService.createDelivery(data);
+      this.sendNewDeliveryNotification(delivery.id);
+      res.status(201).json(delivery);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public updateDelivery = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
       const data: UpdateDeliveryDto = req.body;
-      console.log(data, 'PROUT');
       const delivery: Delivery = await this.deliveryService.updateDelivery(id, data);
 
       res.status(200).json(delivery);
@@ -133,6 +153,7 @@ export class DeliveryController {
       ],
       attributes: ['id'],
     });
+    if (!nearbyCouriers.length) return;
     const message = {
       notification: {
         title: 'Demande de livraison',
