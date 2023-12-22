@@ -27,5 +27,15 @@ export class DeliveryRoute implements Routes {
       AuthMiddleware(Roles.ADMIN, Roles.COURIER),
       this.deliveryController.getCourierDeliveries,
     );
+    this.router.get(
+      `/couriers/:courierId(\\d+)${this.path}/pending`,
+      AuthMiddleware(Roles.ADMIN, Roles.COURIER),
+      this.deliveryController.getNearbyDeliveries,
+    );
+    this.router.get(
+      `/couriers/:courierId(\\d+)${this.path}/current`,
+      AuthMiddleware(Roles.ADMIN, Roles.COURIER),
+      this.deliveryController.getCourierCurrentDelivery,
+    );
   }
 }

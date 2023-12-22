@@ -30,9 +30,9 @@ export class DeliveryService {
     if (!delivery) throw new HttpException(404, "Delivery doesn't exist");
     await delivery.update(data, { where: { id: id } });
     const updatedDelivery: Delivery = await Delivery.findByPk(id);
+    if (!updatedDelivery) throw new HttpException(404, "Updated delivery doesn't exist");
     return updatedDelivery;
   }
-
   public async deleteDelivery(id: number): Promise<Delivery> {
     const delivery: Delivery = await Delivery.findByPk(id);
     if (!delivery) throw new HttpException(404, "Delivery doesn't exist");

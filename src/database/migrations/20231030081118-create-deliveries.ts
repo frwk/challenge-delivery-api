@@ -51,7 +51,7 @@ export const up: Migration = async ({ context: sequelize }) => {
       type: DataTypes.STRING,
     },
     status: {
-      type: DataTypes.ENUM('pending', 'picked_up', 'delivered', 'cancelled'),
+      type: DataTypes.ENUM('pending', 'accepted', 'picked_up', 'delivered', 'cancelled'),
       defaultValue: 'pending',
     },
     notation: {

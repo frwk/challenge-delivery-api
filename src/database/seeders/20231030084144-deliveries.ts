@@ -6,7 +6,7 @@ const { getRandomParisCoordinates } = require('./scripts/getRandomCoordinates');
 module.exports = {
   async up(queryInterface) {
     const deliveries = [];
-    const statusOptions = ['pending', 'picked_up', 'delivered', 'cancelled'];
+    const statusOptions = ['pending', 'accepted', 'picked_up', 'delivered', 'cancelled'];
     const couriers = await queryInterface.sequelize.query(`SELECT id, status FROM couriers;`);
     let notAssignedOnDeliveryCouriers = couriers[0].filter(courier => courier.status === 'on_delivery');
     for (let i = 1; i <= 200; i++) {
@@ -27,16 +27,20 @@ module.exports = {
 
       let status = statusOptions[i % statusOptions.length];
       let courier;
-      if ((status === 'pending' || status === 'picked_up') && !notAssignedOnDeliveryCouriers.length) {
-        status = ['delivered', 'cancelled'][Math.floor(Math.random() * 2)];
-        console.log('No more couriers available for delivery, changing status to', status);
-      }
-      if (status === 'pending' || status === 'picked_up') {
-        courier = notAssignedOnDeliveryCouriers[Math.floor(Math.random() * notAssignedOnDeliveryCouriers.length)];
-        notAssignedOnDeliveryCouriers = notAssignedOnDeliveryCouriers.filter(notAssignedCourier => notAssignedCourier.id !== courier.id);
+      if (status === 'pending') {
+        courier = null;
       } else {
-        const otherCouriers = couriers[0].filter(courier => courier.status === 'available' || courier.status === 'unavailable');
-        courier = otherCouriers[Math.floor(Math.random() * otherCouriers.length)];
+        if ((status === 'accepted' || status === 'picked_up') && !notAssignedOnDeliveryCouriers.length) {
+          status = ['delivered', 'cancelled'][Math.floor(Math.random() * 2)];
+          console.log('No more couriers available for delivery, changing status to', status);
+        }
+        if (status === 'accepted' || status === 'picked_up') {
+          courier = notAssignedOnDeliveryCouriers[Math.floor(Math.random() * notAssignedOnDeliveryCouriers.length)];
+          notAssignedOnDeliveryCouriers = notAssignedOnDeliveryCouriers.filter(notAssignedCourier => notAssignedCourier.id !== courier.id);
+        } else {
+          const otherCouriers = couriers[0].filter(courier => courier.status === 'available' || courier.status === 'unavailable');
+          courier = otherCouriers[Math.floor(Math.random() * otherCouriers.length)];
+        }
       }
 
       deliveries.push({
@@ -47,7 +51,7 @@ module.exports = {
         pickup_date: pickupDate,
         dropoff_date: dropoffDate,
         client_id: Math.floor(Math.random() * 10) + 1,
-        courier_id: courier.id,
+        courier_id: courier?.id,
         confirmation_code: confirmationCode,
         status: status,
         notation: Math.floor(Math.random() * 5) + 1,

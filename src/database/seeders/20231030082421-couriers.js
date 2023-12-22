@@ -8,12 +8,12 @@ module.exports = {
     const couriers = [];
     const statusOptions = ['available', 'unavailable', 'on_delivery'];
 
-    for (let i = 1; i <= 10; i++) {
-      const hashedPassword = await bcrypt.hash('password', 10);
+    for (let i = 203; i <= 213; i++) {
+      const hashedPassword = await bcrypt.hash('password123', 10);
       users.push({
         first_name: `Firstname${i}`,
         last_name: `Lastname${i}`,
-        email: `user${i + 10}@test.com`,
+        email: `user${i}@test.com`,
         first_name: `Courier${i}`,
         last_name: `Doe`,
         password: hashedPassword,
@@ -22,7 +22,7 @@ module.exports = {
         updated_at: new Date(),
       });
     }
-    for (let i = 1; i <= 20; i++) {
+    for (let i = 203; i < 213; i++) {
       const randomCoordinates = getRandomParisCoordinates();
       couriers.push({
         user_id: i,
