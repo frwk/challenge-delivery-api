@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
+import { SignupDto, LoginUserDto } from '@dtos/users.dto';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { AuthService } from '@services/auth.service';
 import User from '@/models/users.model';
@@ -14,7 +14,7 @@ export class AuthController {
 
   public signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userData: CreateUserDto = req.body;
+      const userData: SignupDto = req.body;
       const signUpUserData: User = await this.auth.signup(userData);
 
       res.status(201).json(signUpUserData);
