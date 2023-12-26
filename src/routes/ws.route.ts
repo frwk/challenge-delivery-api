@@ -1,3 +1,4 @@
+import FirebaseAdmin from '@/config/firebaseAdmin';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { Routes } from '@/interfaces/routes.interface';
 import { AuthWsMiddleware } from '@/middlewares/auth.middleware';
@@ -19,10 +20,26 @@ export class WsRoute implements Routes {
     }, 1000);
   }
 
-  private sendMessageToUser(wsId: string, data: any) {
+  private async sendMessageToUser(wsId: string, role: string, data: any) {
     const client = this.clientsMap.get(wsId);
     if (client) {
       client.ws.send(JSON.stringify(data));
+      if (['admin', 'support'].includes(data.data.userType)) {
+        const complaint = await Complaint.findByPk(data.data.complaintId, { include: [{ model: User }] });
+        if (complaint.user.notificationToken === null) return console.log('No notification token');
+        const message = {
+          notification: {
+            title: 'Nouveau message du support',
+            body: data.data.content,
+          },
+          data: {
+            click_action: 'OPEN_COMPLAINT_DETAILS',
+            complaintId: data.data.complaintId.toString(),
+          },
+          token: complaint.user.notificationToken,
+        };
+        await FirebaseAdmin.getInstance().getMessaging().send(message);
+      }
     } else {
       console.warn(`wsId ${wsId} not found`);
     }
@@ -37,7 +54,7 @@ export class WsRoute implements Routes {
     }
     const complaint = await Complaint.findOne({
       where: whereClause,
-      attributes: ['id', 'status'],
+      attributes: ['id', 'status', 'userId'],
     });
     if (!complaint) return ws.send(JSON.stringify({ type: 'error', data: 'Complaint not found' }));
     if (complaint.status === 'resolved') return ws.send(JSON.stringify({ type: 'error', data: 'Complaint is resolved' }));
@@ -51,8 +68,8 @@ export class WsRoute implements Routes {
     ComplaintMessage.create({ ...data })
       .then(() => {
         this.clientsMap.forEach((client, wsId) => {
-          if (['admin', 'support'].includes(client.userInfo.role) || client.userInfo.id === data.userId) {
-            this.sendMessageToUser(wsId, response);
+          if (['admin', 'support'].includes(client.userInfo.role) || client.userInfo.id === complaint.userId) {
+            this.sendMessageToUser(wsId, client.userInfo.role, response);
           }
         });
         return;

@@ -1,4 +1,5 @@
 import { CreateComplaintDto, UpdateComplaintDto } from '@/dtos/complaints.dto';
+import { RequestWithUser } from '@/interfaces/auth.interface';
 import Complaint from '@/models/complaints.model';
 import Courier from '@/models/couriers.model';
 import Delivery from '@/models/deliveries.model';
@@ -104,10 +105,54 @@ export class ComplaintsController {
     }
   };
 
-  public getComplaintsByUserId = async (req: Request, res: Response, next: NextFunction) => {
+  public resolveComplaint = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const id = Number(req.params.id);
+      const complaint: Complaint = await this.complaintsService.resolveComplaint(id, req.user.id, {
+        attributes: ['id', 'createdAt', 'status'],
+        include: [
+          {
+            model: Delivery,
+            attributes: ['id', 'createdAt'],
+            include: [
+              {
+                model: Courier,
+                attributes: ['id'],
+                include: [{ model: User, attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'], paranoid: false }],
+              },
+            ],
+          },
+        ],
+      });
+
+      res.status(200).json(complaint);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getComplaintsByUserId = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    if (req.user.id !== Number(req.params.userId)) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
     try {
       const userId = Number(req.params.userId);
-      const complaints: Complaint[] = await this.complaintsService.findComplaintByUserId(userId);
+      const complaints: Complaint[] = await this.complaintsService.findComplaintByUserId(userId, {
+        attributes: ['id', 'createdAt', 'status'],
+        include: [
+          {
+            model: Delivery,
+            attributes: ['id', 'createdAt'],
+            include: [
+              {
+                model: Courier,
+                attributes: ['id'],
+                include: [{ model: User, attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'], paranoid: false }],
+              },
+            ],
+          },
+        ],
+      });
 
       res.status(200).json(complaints);
     } catch (error) {

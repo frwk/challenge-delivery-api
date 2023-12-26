@@ -33,8 +33,18 @@ export class ComplaintsService {
     return updateComplaint;
   }
 
-  public async findComplaintByUserId(userId: number): Promise<Complaint[]> {
-    const findComplaints: Complaint[] = await Complaint.findAll({ where: { userId } });
+  public async resolveComplaint(complaintId: number, userId: number, options: FindOptions<Attributes<Complaint>>): Promise<Complaint> {
+    const findComplaint: Complaint = await Complaint.findOne({ where: { id: complaintId, userId } });
+    if (!findComplaint) throw new HttpException(404, "Complaint doesn't exist");
+
+    await Complaint.update({ status: 'resolved' }, { where: { id: complaintId } });
+
+    const updateComplaint: Complaint = await Complaint.findByPk(complaintId, options);
+    return updateComplaint;
+  }
+
+  public async findComplaintByUserId(userId: number, options: FindOptions<Attributes<Complaint>>): Promise<Complaint[]> {
+    const findComplaints: Complaint[] = await Complaint.findAll({ ...options, where: { userId } });
     return findComplaints;
   }
 }
