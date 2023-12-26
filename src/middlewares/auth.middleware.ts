@@ -31,8 +31,10 @@ export const AuthMiddleware = (...roles: Roles[]) => {
           req.user = findUser;
           return next();
         }
+        return next(new HttpException(403, 'Access denied'));
+      } else {
+        return next(new HttpException(401, 'Missing authentication token'));
       }
-      return next(new HttpException(403, 'Access denied'));
     } catch (error) {
       return next(new HttpException(401, 'Wrong authentication token'));
     }

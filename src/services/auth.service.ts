@@ -2,7 +2,7 @@ import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { Service } from 'typedi';
 import 'dotenv/config';
-import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
+import { SignupDto, LoginUserDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import User from '@/models/users.model';
@@ -30,7 +30,7 @@ const createCookie = (tokenData: TokenData): string => {
 
 @Service()
 export class AuthService {
-  public async signup(userData: CreateUserDto): Promise<User> {
+  public async signup(userData: SignupDto): Promise<User> {
     const findUser: User = await User.findOne({ where: { email: userData.email } });
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
 

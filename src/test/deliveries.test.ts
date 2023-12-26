@@ -3,9 +3,16 @@ import { App } from '../app';
 import { migrator } from '@/database/umzug';
 import { DeliveryRoute } from '@/routes/deliveries.route';
 import Delivery from '@/models/deliveries.model';
-import { logger } from '@/utils/logger';
 import { UserRoute } from '@/routes/users.route';
 import { CourierRoute } from '@/routes/couriers.route';
+
+jest.mock('../middlewares/auth.middleware.ts', () => ({
+  AuthMiddleware: (...roles) => {
+    return async (req, res, next) => {
+      next();
+    };
+  },
+}));
 
 describe('Integration tests for deliveries', () => {
   let app, client, courier, deliveryData;
@@ -34,9 +41,6 @@ describe('Integration tests for deliveries', () => {
       confirmationCode: '1234',
       status: 'pending',
     };
-    logger.info('PROUT');
-    logger.log('info', JSON.stringify(courier));
-    logger.log('info', JSON.stringify(client));
   });
 
   afterEach(async () => {
@@ -50,7 +54,7 @@ describe('Integration tests for deliveries', () => {
   describe('GET /deliveries/:id', () => {
     it('should return a delivery', async () => {
       const resNewDelivery = await request(app.getServer()).post(route).send(deliveryData);
-
+      expect(resNewDelivery.statusCode).toEqual(201);
       const res = await request(app.getServer()).get(`${route}/${resNewDelivery.body.id}`);
       expect(res.statusCode).toEqual(200);
       expect(res.body).toHaveProperty('id', resNewDelivery.body.id);

@@ -87,7 +87,7 @@ describe('Integration tests for authentication', () => {
     it('should return 401 when not logged in', async () => {
       const result = await request(app.getServer()).post('/auth/logout');
       expect(result.status).toBe(401);
-      expect(result.body).toHaveProperty('message', 'Wrong authentication token');
+      expect(result.body).toHaveProperty('message', 'Missing authentication token');
     });
   });
 

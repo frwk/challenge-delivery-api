@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsBoolean, IsDecimal, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator';
-import { CreateUserDto, UpdateUserDto } from './users.dto';
+import { SignupDto, UpdateUserDto } from './users.dto';
 import { CourierStatuses } from '@/enums/courier-statuses.enum';
 
 export class CreateCourierDto {
@@ -19,8 +19,8 @@ export class CreateCourierDto {
   public longitude: string;
 
   @ValidateNested()
-  @Type(() => CreateUserDto)
-  user: CreateUserDto;
+  @Type(() => SignupDto)
+  user: SignupDto;
 }
 
 export class UpdateCourierDto {
