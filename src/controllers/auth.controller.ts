@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { SignupDto, LoginUserDto } from '@dtos/users.dto';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 import { AuthService } from '@services/auth.service';
 import User from '@/models/users.model';
@@ -8,6 +7,7 @@ import { verify } from 'jsonwebtoken';
 import { HttpException } from '@/exceptions/HttpException';
 import 'dotenv/config';
 import Courier from '@/models/couriers.model';
+import { LoginUserDto, SignupDto } from '@/dtos/auth.dto';
 
 export class AuthController {
   public auth = Container.get(AuthService);

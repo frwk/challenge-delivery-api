@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { UserController } from '@controllers/users.controller';
-import { CreateUserAsAdminDto, UpdateUserAsAdminDto, UpdateUserDto } from '@dtos/users.dto';
 import { Routes } from '@interfaces/routes.interface';
 import { ValidationMiddleware } from '@middlewares/validation.middleware';
 import { AuthMiddleware } from '@/middlewares/auth.middleware';
 import { Roles } from '@/enums/roles.enum';
+import { CreateUserAsAdminDto } from '@/dtos/users/create.dto';
+import { UpdateUserAsAdminDto, UpdateUserDto } from '@/dtos/users/update.dto';
 
 export class UserRoute implements Routes {
   public path = '/users';

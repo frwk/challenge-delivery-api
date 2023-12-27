@@ -27,7 +27,7 @@ export const sequelize = new Sequelize(
     },
     logQueryParameters: process.env.NODE_ENV === 'development',
     logging: (query, time) => {
-      logger.info(time + 'ms' + ' ' + query);
+      process.env.NODE_ENV !== 'test' ? logger.info(time + 'ms' + ' ' + query) : false;
     },
     benchmark: true,
     models: [User, Delivery, Courier, Complaint, Reward, ComplaintMessage],
@@ -35,9 +35,3 @@ export const sequelize = new Sequelize(
 );
 
 sequelize.authenticate();
-
-// export const DB = {
-//   Users: UserModel(sequelize),
-//   sequelize, // connection instance (RAW queries)
-//   Sequelize, // library
-// };

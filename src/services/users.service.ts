@@ -1,9 +1,10 @@
 import { Service } from 'typedi';
-import { SignupDto, UpdateUserAsAdminDto, UpdateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import User from '@/models/users.model';
 import Courier from '@/models/couriers.model';
 import { Attributes, FindOptions } from 'sequelize';
+import { SignupDto } from '@/dtos/auth.dto';
+import { UpdateUserAsAdminDto, UpdateUserDto } from '@/dtos/users/update.dto';
 
 @Service()
 export class UserService {
