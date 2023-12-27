@@ -66,7 +66,6 @@ export default class Courier extends Model {
   @AfterCreate
   @AfterUpdate
   static async handleMongoUpdate(instance: Courier) {
-    console.log('instance', instance.dataValues);
     await userMongo(instance.userId);
     await courierMongo(instance.id);
   }

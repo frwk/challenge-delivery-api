@@ -21,5 +21,6 @@ COPY package*.json ./
 COPY ./.env.vault ./.env.vault
 ENV NODE_ENV production
 RUN npm install --omit=dev
+RUN npm install pm2 -g
 EXPOSE 3000
 CMD ["npm", "run", "start"]

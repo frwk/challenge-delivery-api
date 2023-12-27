@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { CreateUserAsAdminDto, UpdateUserAsAdminDto, UpdateUserDto } from '@dtos/users.dto';
 import { UserService } from '@services/users.service';
 import User from '@/models/users.model';
 import { Roles } from '@/enums/roles.enum';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { HttpException } from '@/exceptions/HttpException';
+import { CreateUserAsAdminDto } from '@/dtos/users/create.dto';
+import { UpdateUserAsAdminDto, UpdateUserDto } from '@/dtos/users/update.dto';
 
 export class UserController {
   public userService = Container.get(UserService);

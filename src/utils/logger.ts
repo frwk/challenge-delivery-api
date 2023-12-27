@@ -49,13 +49,15 @@ const logger = winston.createLogger({
   ],
 });
 
-logger.add(
-  new winston.transports.Console({
-    level: 'debug',
-    handleExceptions: true,
-    format: winston.format.combine(winston.format.splat(), winston.format.colorize()),
-  }),
-);
+if (process.env.NODE_ENV !== 'test') {
+  logger.add(
+    new winston.transports.Console({
+      level: 'debug',
+      handleExceptions: true,
+      format: winston.format.combine(winston.format.splat(), winston.format.colorize()),
+    }),
+  );
+}
 
 const stream = {
   write: (message: string) => {

@@ -1,5 +1,6 @@
 import { CourierController } from '@/controllers/couriers.controller';
-import { CreateCourierDto, UpdateCourierDto } from '@/dtos/couriers.dto';
+import { CreateCourierDto } from '@/dtos/users/create.dto';
+import { UpdateCourierDto } from '@/dtos/users/update.dto';
 import { Roles } from '@/enums/roles.enum';
 import { AuthMiddleware } from '@/middlewares/auth.middleware';
 import { Routes } from '@interfaces/routes.interface';

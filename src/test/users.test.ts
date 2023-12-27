@@ -6,6 +6,16 @@ import { Container } from 'typedi';
 import UserMongo from '@/database/mongo/models/User';
 import { migrator } from '@/database/umzug';
 import User from '@/models/users.model';
+import { Roles } from '@/enums/roles.enum';
+
+jest.mock('../middlewares/auth.middleware.ts', () => ({
+  AuthMiddleware: (...roles) => {
+    return async (req, res, next) => {
+      req.user = { id: 1, role: Roles.ADMIN };
+      next();
+    };
+  },
+}));
 
 describe('Integration tests for user', () => {
   let app;
@@ -83,7 +93,7 @@ describe('Integration tests for user', () => {
     });
   });
 
-  describe('PUT /users/:id', () => {
+  describe('PATCH /users/:id', () => {
     it('should update a user', async () => {
       const newUser = { firstName: 'john', lastName: 'doe', email: 'test@user.com', password: 'password123' };
       const resNewUser = await request(app.getServer()).post('/users').send(newUser);

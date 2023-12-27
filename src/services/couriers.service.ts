@@ -1,6 +1,5 @@
 import { hash } from 'bcryptjs';
 import { Service } from 'typedi';
-import { CreateCourierDto, UpdateCourierDto } from '@dtos/couriers.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import Courier from '@/models/couriers.model';
 import User from '@/models/users.model';
@@ -8,6 +7,8 @@ import Complaint from '@/models/complaints.model';
 import { FindOptions } from 'sequelize';
 import CourierMongo, { CourierSchema } from '@/database/mongo/models/Courier';
 import { InferSchemaType } from 'mongoose';
+import { CreateCourierDto } from '@/dtos/users/create.dto';
+import { UpdateCourierDto } from '@/dtos/users/update.dto';
 @Service()
 export class CourierService {
   public async findAllCourier(options?): Promise<InferSchemaType<typeof CourierSchema>[]> {

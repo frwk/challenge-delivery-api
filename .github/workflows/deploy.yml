@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ main ]
+    branches: [ main, fix/tests-and-security ]
 
 name: 🚧 Run tests, build, push to Docker Hub & deploy to VPS 🚀
 jobs:
@@ -10,7 +10,7 @@ jobs:
     container: node:latest
     services:
       db:
-        image: postgres
+        image: postgis/postgis
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password

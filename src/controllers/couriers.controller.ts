@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
-import { CreateCourierDto, UpdateCourierDto } from '@dtos/couriers.dto';
 import { CourierService } from '@services/couriers.service';
 import Courier from '@/models/couriers.model';
 import CourierMongo, { CourierSchema } from '@/database/mongo/models/Courier';
@@ -11,6 +10,8 @@ import { RequestWithUser } from '@/interfaces/auth.interface';
 import { Roles } from '@/enums/roles.enum';
 import { HttpException } from '@/exceptions/HttpException';
 import Delivery from '@/models/deliveries.model';
+import { UpdateCourierDto } from '@/dtos/users/update.dto';
+import { CreateCourierDto } from '@/dtos/users/create.dto';
 
 export class CourierController {
   public courierService = Container.get(CourierService);
@@ -50,7 +51,6 @@ export class CourierController {
     try {
       const courierId = Number(req.params.id);
       const findOneCourierData: InferSchemaType<typeof CourierSchema> = await this.courierService.findCourierById(courierId);
-      console.log(findOneCourierData);
       res.status(200).json(findOneCourierData);
     } catch (error) {
       next(error);

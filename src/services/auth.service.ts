@@ -2,12 +2,12 @@ import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { Service } from 'typedi';
 import 'dotenv/config';
-import { SignupDto, LoginUserDto } from '@dtos/users.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import User from '@/models/users.model';
 import { Roles } from '@/enums/roles.enum';
 import Courier from '@/models/couriers.model';
+import { LoginUserDto, SignupDto } from '@/dtos/auth.dto';
 
 const createToken = (user: User): TokenData => {
   const dataStoredInToken: DataStoredInToken = {
