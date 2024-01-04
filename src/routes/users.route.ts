@@ -6,6 +6,7 @@ import { AuthMiddleware } from '@/middlewares/auth.middleware';
 import { Roles } from '@/enums/roles.enum';
 import { CreateUserAsAdminDto } from '@/dtos/users/create.dto';
 import { UpdateUserAsAdminDto, UpdateUserDto } from '@/dtos/users/update.dto';
+import { VerifyPasswordDto } from '@/dtos/users/verify-password.dto';
 
 export class UserRoute implements Routes {
   public path = '/users';
@@ -28,5 +29,7 @@ export class UserRoute implements Routes {
     );
     this.router.patch(`/me`, AuthMiddleware(), ValidationMiddleware(UpdateUserDto), this.userController.updateUser);
     this.router.delete(`${this.path}/:id(\\d+)`, this.userController.deleteUser);
+    this.router.post(`${this.path}/:id(\\d+)/verify-password`, ValidationMiddleware(VerifyPasswordDto), this.userController.verifyPassword);
+    this.router.get(`${this.path}/:id(\\d+)/stats`, AuthMiddleware(Roles.ADMIN, Roles.CLIENT), this.userController.getUserStats);
   }
 }

@@ -25,6 +25,12 @@ export const up: Migration = async ({ context: sequelize }) => {
       type: DataTypes.DECIMAL(9, 6),
       allowNull: true,
     },
+    pickup_address: {
+      type: DataTypes.STRING,
+    },
+    dropoff_address: {
+      type: DataTypes.STRING,
+    },
     pickup_date: {
       type: DataTypes.DATE,
     },

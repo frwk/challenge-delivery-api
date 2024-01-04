@@ -30,11 +30,11 @@ export class UserService {
   public async updateUser(userId: number, userData: UpdateUserAsAdminDto | UpdateUserDto): Promise<User> {
     const findUser: User = await User.findByPk(userId, { include: [{ model: Courier }] });
     if (!findUser) throw new HttpException(404, "User doesn't exist");
-    const updatedUser = await findUser.update(userData);
+    const { courier, ...userDataWithoutCourier } = userData;
+    const updatedUser = await findUser.update(userDataWithoutCourier);
     if (userData.courier) {
-      const courier = await findUser.courier;
-      if (!courier) throw new HttpException(404, "Courier doesn't exist");
-      await courier.update(userData.courier);
+      if (!findUser.courier) throw new HttpException(404, "Courier doesn't exist");
+      await findUser.courier.update(courier);
     }
     return updatedUser;
   }

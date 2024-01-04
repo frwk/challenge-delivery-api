@@ -14,6 +14,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { Container } from 'typedi';
+import { LatLng } from '@googlemaps/google-maps-services-js';
 
 export class DeliveryController {
   public deliveryService = Container.get(DeliveryService);
@@ -39,6 +40,18 @@ export class DeliveryController {
       if (!client) throw new HttpException(404, 'Client not found');
       const deliveries: Delivery[] = await Delivery.findAll({
         where: { clientId: clientId },
+        include: [
+          {
+            model: Courier,
+            include: [
+              {
+                model: User,
+                attributes: ['firstName', 'lastName'],
+              },
+            ],
+          },
+        ],
+        order: [['createdAt', 'DESC']],
       });
       res.status(200).json(deliveries);
     } catch (error) {
@@ -56,8 +69,14 @@ export class DeliveryController {
       }
       const deliveries: Delivery[] = await Delivery.findAll({
         where: { courierId: courierId },
+        include: { model: User, as: 'client', attributes: ['firstName', 'lastName'] },
       });
-      res.status(200).json(deliveries);
+      const deliveriesWithDistances: DeliveryWithDistances[] = deliveries.map(delivery => {
+        const distance = getDistanceInMeters(delivery.pickupLatitude, delivery.pickupLongitude, delivery.dropoffLatitude, delivery.dropoffLongitude);
+        const distanceToPickup = getDistanceInMeters(courier.latitude, courier.longitude, delivery.pickupLatitude, delivery.pickupLongitude);
+        return { ...delivery.get({ plain: true }), distance, distanceToPickup };
+      });
+      res.status(200).json(deliveriesWithDistances);
     } catch (error) {
       next(error);
     }
@@ -244,6 +263,30 @@ export class DeliveryController {
       });
       if (!delivery) throw new HttpException(404, 'No current delivery');
       res.status(200).json(delivery);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getEstimatedDeliveryTime = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const courierId = Number(req.params.courierId);
+      const courier = await Courier.findByPk(courierId);
+      if (!courier) throw new HttpException(404, 'Courier not found');
+      const deliveryId = Number(req.params.deliveryId);
+      const delivery = await Delivery.findByPk(deliveryId);
+      if (!delivery) throw new HttpException(404, 'Delivery not found');
+      const pickupLocation: LatLng = {
+        lat: delivery.pickupLatitude,
+        lng: delivery.pickupLongitude,
+      };
+
+      const dropoffLocation: LatLng = {
+        lat: delivery.dropoffLatitude,
+        lng: delivery.dropoffLongitude,
+      };
+      const response = getEstimatedDeliveryTimeWithGoogleMaps(pickupLocation, dropoffLocation);
+      res.status(200).json({ response });
     } catch (error) {
       next(error);
     }

@@ -1,6 +1,6 @@
 'use strict';
 const bcrypt = require('bcryptjs');
-const { getRandomParisCoordinates } = require('./scripts/getRandomCoordinates');
+const { getRandomParisCoordinates } = require('./scripts/helpers');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface) {

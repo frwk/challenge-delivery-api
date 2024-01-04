@@ -11,6 +11,7 @@ import {
   HasMany,
   Default,
   DeletedAt,
+  Unique,
 } from 'sequelize-typescript';
 import User from './users.model';
 import Delivery from './deliveries.model';
@@ -32,6 +33,7 @@ export default class Complaint extends Model {
   id: number;
 
   @ForeignKey(() => Delivery)
+  @Unique
   @Column
   deliveryId: number;
 
@@ -58,6 +60,6 @@ export default class Complaint extends Model {
   @DeletedAt
   deletedAt: Date;
 
-  @HasMany(() => ComplaintMessage)
+  @HasMany(() => ComplaintMessage, 'complaintId')
   complaintMessages: ComplaintMessage[];
 }

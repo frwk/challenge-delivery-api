@@ -49,5 +49,6 @@ export class DeliveryRoute implements Routes {
       AuthMiddleware(Roles.ADMIN, Roles.COURIER),
       this.deliveryController.getCourierCurrentDelivery,
     );
+    this.router.get(`${this.path}/estimate`, this.deliveryController.getEstimatedDeliveryTime);
   }
 }

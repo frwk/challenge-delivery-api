@@ -47,6 +47,12 @@ export default class Delivery extends Model {
   dropoffLongitude: number;
 
   @Column
+  pickupAddress: string;
+
+  @Column
+  dropoffAddress: string;
+
+  @Column
   pickupDate: Date;
 
   @Column

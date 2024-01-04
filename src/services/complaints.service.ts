@@ -11,6 +11,13 @@ export class ComplaintsService {
     return allComplaints;
   }
 
+  public async findOneComplaint(options: FindOptions<Attributes<Complaint>>): Promise<Complaint> {
+    const complaint: Complaint = await Complaint.findOne(options);
+    if (!complaint) throw new HttpException(404, "Complaint doesn't exist");
+
+    return complaint;
+  }
+
   public async findComplaintById(complaintId: number, options: FindOptions<Attributes<Complaint>>): Promise<Complaint> {
     const findComplaint: Complaint = await Complaint.findByPk(complaintId, options);
     if (!findComplaint) throw new HttpException(404, "Complaint doesn't exist");
