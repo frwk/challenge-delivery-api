@@ -20,6 +20,7 @@ import { DeliveryStatuses } from '@/enums/delivery-statuses.enum';
 import userMongo from '@/database/mongo/denormalization/userMongo';
 import courierMongo from '@/database/mongo/denormalization/courierMongo';
 import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
+import Pricing from '@models/pricings.models';
 
 @Table({ tableName: 'deliveries', underscored: true })
 export default class Delivery extends Model {
@@ -82,6 +83,13 @@ export default class Delivery extends Model {
 
   @BelongsTo(() => Courier)
   courier: Courier;
+
+  @ForeignKey(() => Pricing)
+  @Column
+  pricingId: number;
+
+  @Column({ type: 'DECIMAL(9,6)', allowNull: false })
+  total: number;
 
   @CreatedAt
   readonly createdAt: Date;

@@ -1,5 +1,5 @@
 import FirebaseAdmin from '@/config/firebaseAdmin';
-import { CreateDeliveryDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
+import { CreateDeliveryDto, DeliveryTotalDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
 import { Roles } from '@/enums/roles.enum';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
@@ -72,6 +72,19 @@ export class DeliveryController {
     }
   };
 
+  public getDeliveryTotal = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data: DeliveryTotalDto = req.body;
+      const deliveryTotal = await this.deliveryService.calculateDeliveryTotal(data);
+
+      data.total = deliveryTotal;
+      console.log(data);
+      return res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public createDelivery = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data: CreateDeliveryDto = req.body;
@@ -102,9 +115,10 @@ export class DeliveryController {
         [data.dropoffLongitude, data.dropoffLatitude] = dropoffLocation;
       }
       const delivery: Delivery = await this.deliveryService.createDelivery(data);
-      this.sendNewDeliveryNotification(delivery.id);
+      // this.sendNewDeliveryNotification(delivery.id);
       res.status(201).json(delivery);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

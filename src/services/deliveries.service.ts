@@ -1,12 +1,16 @@
 import { Service } from 'typedi';
 import { HttpException } from '@/exceptions/HttpException';
 import Delivery from '@/models/deliveries.model';
-import { CreateDeliveryDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
+import { CreateDeliveryDto, DeliveryTotalDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
 import { Attributes, FindOptions } from 'sequelize';
-import User from '@/models/users.model';
+import Pricing from '@models/pricings.models';
+import { PricingService } from '@services/pricing.service';
+import Pricings from '@models/pricings.models';
 
 @Service()
 export class DeliveryService {
+  constructor(public pricingService: PricingService) {}
+
   public async findAllDeliveries(options: FindOptions<Attributes<Delivery>> = {}): Promise<Delivery[]> {
     const defaultOptions = { include: { all: true } } as FindOptions<Attributes<Delivery>>;
     const allDeliveries: Delivery[] = await Delivery.findAll({ ...defaultOptions, ...options });
@@ -21,8 +25,7 @@ export class DeliveryService {
   }
 
   public async createDelivery(data: CreateDeliveryDto): Promise<Delivery> {
-    const createUserData: Delivery = await Delivery.create({ ...data });
-    return createUserData;
+    return await Delivery.create({ ...data });
   }
 
   public async updateDelivery(id: number, data: UpdateDeliveryDto): Promise<Delivery> {
@@ -40,5 +43,17 @@ export class DeliveryService {
     await Delivery.destroy({ where: { id: id } });
 
     return delivery;
+  }
+
+  public async calculateDeliveryTotal(deliveryDto: DeliveryTotalDto) {
+    const pricing: Pricing = await this.pricingService.findByVehicleAndUrgency(deliveryDto.vehicle, deliveryDto.urgency);
+
+    if (null !== pricing) {
+      const units = pricing.units;
+
+      return units * Pricings.fixedRate;
+    }
+
+    return null;
   }
 }

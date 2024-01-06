@@ -9,6 +9,7 @@ import * as pg from 'pg';
 import { Sequelize } from 'sequelize-typescript';
 import mongooseDefault from 'mongoose';
 import 'dotenv/config';
+import Pricings from '@models/pricings.models';
 
 export const sequelize = new Sequelize(
   `postgres://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT}/${process.env.POSTGRES_DATABASE}`,
@@ -30,7 +31,7 @@ export const sequelize = new Sequelize(
       process.env.NODE_ENV !== 'test' ? logger.info(time + 'ms' + ' ' + query) : false;
     },
     benchmark: true,
-    models: [User, Delivery, Courier, Complaint, Reward, ComplaintMessage],
+    models: [User, Delivery, Courier, Complaint, Reward, ComplaintMessage, Pricings],
   },
 );
 
