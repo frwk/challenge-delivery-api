@@ -1,4 +1,5 @@
 import FirebaseAdmin from '@/config/firebaseAdmin';
+import { DeliveryTrackingController } from '@/controllers/delivery-tracking.controller';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { Routes } from '@/interfaces/routes.interface';
 import { AuthWsMiddleware } from '@/middlewares/auth.middleware';
@@ -12,7 +13,7 @@ export class WsRoute implements Routes {
   public path = '/ws';
   public router = Router();
   public clientsMap = new Map<string, any>();
-
+  public deliveryTrackingController = DeliveryTrackingController.getInstance();
   constructor() {
     // TODO: Remove this timeout (it doesn't work without it - seems like "expressWs" is not initialized yet)
     setTimeout(() => {
@@ -146,5 +147,6 @@ export class WsRoute implements Routes {
         this.clientsMap.delete(wsId);
       });
     });
+    this.router.ws(`/delivery-tracking/:deliveryId(\\d+)`, AuthWsMiddleware, this.deliveryTrackingController.handleDeliveryTracking);
   }
 }

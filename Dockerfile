@@ -6,6 +6,7 @@ FROM base as dev
 RUN npm install
 COPY . .
 ENV NODE_ENV development
+ENV GOOGLE_APPLICATION_CREDENTIALS="/app/firebase.json"
 CMD ["npm", "run", "dev"]
 
 FROM base as build

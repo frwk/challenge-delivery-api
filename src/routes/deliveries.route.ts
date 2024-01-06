@@ -35,6 +35,11 @@ export class DeliveryRoute implements Routes {
     this.router.delete(`${this.path}/:id(\\d+)`, this.deliveryController.deleteDelivery);
     this.router.get(`/users/:clientId(\\d+)${this.path}`, AuthMiddleware(Roles.ADMIN, Roles.CLIENT), this.deliveryController.getClientDeliveries);
     this.router.get(
+      `/users/:clientId(\\d+)${this.path}/current`,
+      AuthMiddleware(Roles.ADMIN, Roles.CLIENT),
+      this.deliveryController.getClientCurrentDeliveries,
+    );
+    this.router.get(
       `/couriers/:courierId(\\d+)${this.path}`,
       AuthMiddleware(Roles.ADMIN, Roles.COURIER),
       this.deliveryController.getCourierDeliveries,

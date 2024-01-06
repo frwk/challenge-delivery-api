@@ -21,6 +21,7 @@ import userMongo from '@/database/mongo/denormalization/userMongo';
 import courierMongo from '@/database/mongo/denormalization/courierMongo';
 import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
 import Pricing from '@models/pricings.models';
+import { DeliveryTrackingController } from '@/controllers/delivery-tracking.controller';
 
 @Table({ tableName: 'deliveries', underscored: true })
 export default class Delivery extends Model {
@@ -112,6 +113,10 @@ export default class Delivery extends Model {
   @AfterCreate
   @AfterUpdate
   static async handleMongoUpdate(instance: Delivery) {
+    if (instance.changed('status')) {
+      const deliveryTrackingController = DeliveryTrackingController.getInstance();
+      await deliveryTrackingController.sendDeliveryUpdate(instance);
+    }
     if (instance.clientId) await userMongo(instance.clientId);
     if (instance.courierId) await courierMongo(instance.courierId);
   }

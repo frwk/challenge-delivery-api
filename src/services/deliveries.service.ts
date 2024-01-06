@@ -60,7 +60,7 @@ export class DeliveryService {
     const delivery: Delivery = await Delivery.findByPk(id);
     if (!delivery) throw new HttpException(404, "Delivery doesn't exist");
     await delivery.update(data, { where: { id: id } });
-    const updatedDelivery: Delivery = await Delivery.findByPk(id);
+    const updatedDelivery: Delivery = await Delivery.findByPk(id, { include: { model: Courier } });
     if (!updatedDelivery) throw new HttpException(404, "Updated delivery doesn't exist");
     return updatedDelivery;
   }
