@@ -32,6 +32,14 @@ export default class Pricings extends Model {
   readonly updatedAt: Date;
 
   static get fixedRate(): number {
-    return 8.5;
+    return 1.085;
+  }
+
+  static get distanceRate(): number {
+    return 4;
+  }
+
+  static get minimumCost(): number {
+    return 5;
   }
 }

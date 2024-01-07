@@ -62,6 +62,12 @@ export class CreateDeliveryDto {
   @IsNumber()
   @IsOptional()
   total: number;
+
+  @IsNotEmpty()
+  vehicle: VehicleEnum;
+
+  @IsNotEmpty()
+  urgency: DeliveryUrgencyEnum;
 }
 
 export class CreateDeliveryAsClientDto {
@@ -170,4 +176,12 @@ export class DeliveryTotalDto {
   @IsNumber()
   @IsOptional()
   total: number;
+
+  @IsNumber()
+  @IsOptional()
+  distance: number;
+
+  @IsNumber()
+  @IsOptional()
+  duration: number;
 }

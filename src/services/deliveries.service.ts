@@ -1,11 +1,13 @@
 import { Service } from 'typedi';
 import { HttpException } from '@/exceptions/HttpException';
 import Delivery from '@/models/deliveries.model';
-import { CreateDeliveryDto, DeliveryTotalDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
+import { CreateDeliveryAsClientDto, CreateDeliveryDto, DeliveryTotalDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
 import { Attributes, FindOptions } from 'sequelize';
 import Pricing from '@models/pricings.models';
 import { PricingService } from '@services/pricing.service';
 import Pricings from '@models/pricings.models';
+import { VehicleEnum } from '@/enums/vehicle.enum';
+import { DeliveryUrgencyEnum } from '@/enums/delivery-urgency.enum';
 
 @Service()
 export class DeliveryService {
@@ -17,14 +19,14 @@ export class DeliveryService {
     return allDeliveries;
   }
 
-  public async findDeliveryById(deliveryId: number): Promise<Delivery> {
-    const delivery: Delivery = await Delivery.findByPk(deliveryId);
+  public async findDeliveryById(deliveryId: number, options: FindOptions<Attributes<Delivery>> = {}): Promise<Delivery> {
+    const delivery: Delivery = await Delivery.findByPk(deliveryId, { ...options });
     if (!delivery) throw new HttpException(404, "Delivery doesn't exist");
 
     return delivery;
   }
 
-  public async createDelivery(data: CreateDeliveryDto): Promise<Delivery> {
+  public async createDelivery(data: CreateDeliveryDto | CreateDeliveryAsClientDto): Promise<Delivery> {
     return await Delivery.create({ ...data });
   }
 
@@ -45,15 +47,15 @@ export class DeliveryService {
     return delivery;
   }
 
-  public async calculateDeliveryTotal(deliveryDto: DeliveryTotalDto) {
-    const pricing: Pricing = await this.pricingService.findByVehicleAndUrgency(deliveryDto.vehicle, deliveryDto.urgency);
+  public async calculateDeliveryTotal(vehicle: VehicleEnum, urgency: DeliveryUrgencyEnum, distance: number): Promise<number> {
+    const pricing: Pricing = await this.pricingService.findByVehicleAndUrgency(vehicle, urgency);
+    if (!pricing) throw new HttpException(404, "Pricing doesn't exist");
 
-    if (null !== pricing) {
-      const units = pricing.units;
-
-      return units * Pricings.fixedRate;
+    let totalCost = (pricing.units + (distance / 1000) * Pricings.distanceRate) * Pricings.fixedRate;
+    const minimumCost = Pricings.minimumCost;
+    if (totalCost < minimumCost) {
+      totalCost = minimumCost;
     }
-
-    return null;
+    return totalCost;
   }
 }
