@@ -19,6 +19,12 @@ export class UserService {
     return findUser;
   }
 
+  public async findOneUser(options: FindOptions<Attributes<User>>): Promise<User> {
+    const findUser: User = await User.findOne(options);
+    if (!findUser) throw new HttpException(404, "User doesn't exist");
+    return findUser;
+  }
+
   public async createUser(userData: SignupDto): Promise<User> {
     const findUser: User = await User.findOne({ where: { email: userData.email }, raw: true, nest: true });
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
@@ -30,11 +36,11 @@ export class UserService {
   public async updateUser(userId: number, userData: UpdateUserAsAdminDto | UpdateUserDto): Promise<User> {
     const findUser: User = await User.findByPk(userId, { include: [{ model: Courier }] });
     if (!findUser) throw new HttpException(404, "User doesn't exist");
-    const updatedUser = await findUser.update(userData);
+    const { courier, ...userDataWithoutCourier } = userData;
+    const updatedUser = await findUser.update(userDataWithoutCourier);
     if (userData.courier) {
-      const courier = await findUser.courier;
-      if (!courier) throw new HttpException(404, "Courier doesn't exist");
-      await courier.update(userData.courier);
+      if (!findUser.courier) throw new HttpException(404, "Courier doesn't exist");
+      await findUser.courier.update(courier);
     }
     return updatedUser;
   }

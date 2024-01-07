@@ -23,7 +23,6 @@ export const AuthMiddleware = (...roles: Roles[]) => {
   return async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const Authorization = getAuthorization(req);
-
       if (Authorization) {
         const { id } = verify(Authorization, process.env.SECRET_KEY) as DataStoredInToken;
         const findUser = await User.findByPk(id);

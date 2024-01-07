@@ -1,14 +1,15 @@
 'use strict';
 
 const { random } = Math;
-const { getRandomParisCoordinates } = require('./scripts/getRandomCoordinates');
+const { getRandomRoute } = require('./scripts/helpers');
 
 module.exports = {
   async up(queryInterface) {
     const deliveries = [];
     const statusOptions = ['pending', 'accepted', 'picked_up', 'delivered', 'cancelled'];
     const couriers = await queryInterface.sequelize.query(`SELECT id, status FROM couriers;`);
-    let notAssignedOnDeliveryCouriers = couriers[0].filter(courier => courier.status === 'on_delivery');
+    const notAssignedOnDeliveryCouriers = couriers[0].filter(courier => courier.status === 'on_delivery');
+
     for (let i = 1; i <= 200; i++) {
       const now = new Date();
       const threeMonthsAgo = new Date();
@@ -16,31 +17,35 @@ module.exports = {
       const differenceInTime = now.getTime() - threeMonthsAgo.getTime();
 
       const randomTimeBetweenNowAndThreeMonthsAgo = threeMonthsAgo.getTime() + random() * differenceInTime;
-      const pickupDate = new Date(randomTimeBetweenNowAndThreeMonthsAgo);
+      const potentialPickupDate = new Date(randomTimeBetweenNowAndThreeMonthsAgo);
+      const potentialDropoffDate = new Date(potentialPickupDate.getTime() + 15 * 60 * 1000 + random() * (2 * 60 * 60 * 1000 - 15 * 60 * 1000));
 
-      const dropoffDate = new Date(pickupDate.getTime() + 15 * 60 * 1000 + random() * (2 * 60 * 60 * 1000 - 15 * 60 * 1000)); // Entre 15 minutes et 2 heures
+      const confirmationCode = `${Math.floor(1000 + random() * 9000)}`;
 
-      const confirmationCode = `${Math.floor(1000 + random() * 9000)}`; // Code à 4 chiffres
-
-      const pickupCoordinates = getRandomParisCoordinates();
-      const dropoffCoordinates = getRandomParisCoordinates();
-
+      const { pickupAddress, dropoffAddress, pickupCoordinates, dropoffCoordinates } = getRandomRoute();
       let status = statusOptions[i % statusOptions.length];
-      let courier;
-      if (status === 'pending') {
-        courier = null;
-      } else {
-        if ((status === 'accepted' || status === 'picked_up') && !notAssignedOnDeliveryCouriers.length) {
-          status = ['delivered', 'cancelled'][Math.floor(Math.random() * 2)];
-          console.log('No more couriers available for delivery, changing status to', status);
-        }
-        if (status === 'accepted' || status === 'picked_up') {
-          courier = notAssignedOnDeliveryCouriers[Math.floor(Math.random() * notAssignedOnDeliveryCouriers.length)];
-          notAssignedOnDeliveryCouriers = notAssignedOnDeliveryCouriers.filter(notAssignedCourier => notAssignedCourier.id !== courier.id);
+      let courier = null;
+      let pickupDate = null;
+      let dropoffDate = null;
+      let notation = null;
+
+      if (status === 'delivered') {
+        pickupDate = potentialPickupDate;
+        dropoffDate = potentialDropoffDate;
+        notation = Math.floor(Math.random() * 5) + 1;
+      } else if (status === 'picked_up') {
+        pickupDate = potentialPickupDate;
+      }
+
+      if (status === 'accepted' || status === 'picked_up') {
+        if (notAssignedOnDeliveryCouriers.length > 0) {
+          courier = notAssignedOnDeliveryCouriers.pop(); // Assign a courier who is not already on delivery
         } else {
-          const otherCouriers = couriers[0].filter(courier => courier.status === 'available' || courier.status === 'unavailable');
-          courier = otherCouriers[Math.floor(Math.random() * otherCouriers.length)];
+          status = 'pending'; // No couriers available, revert to pending status
         }
+      } else if (status !== 'pending') {
+        const otherCouriers = couriers[0].filter(courier => courier.status === 'available' || courier.status === 'unavailable');
+        courier = otherCouriers[Math.floor(Math.random() * otherCouriers.length)];
       }
 
       deliveries.push({
@@ -48,6 +53,8 @@ module.exports = {
         pickup_longitude: pickupCoordinates.longitude,
         dropoff_latitude: dropoffCoordinates.latitude,
         dropoff_longitude: dropoffCoordinates.longitude,
+        pickup_address: pickupAddress,
+        dropoff_address: dropoffAddress,
         pickup_date: pickupDate,
         dropoff_date: dropoffDate,
         client_id: Math.floor(Math.random() * 10) + 1,
@@ -55,9 +62,9 @@ module.exports = {
         pricing_id: Math.floor(Math.random() * 9) + 1,
         confirmation_code: confirmationCode,
         status: status,
-        notation: Math.floor(Math.random() * 5) + 1,
-        created_at: new Date(pickupDate.getTime() - 30 * 60 * 1000),
-        updated_at: new Date(pickupDate.getTime() - 30 * 60 * 1000),
+        notation: notation,
+        created_at: new Date(potentialPickupDate.getTime() - 30 * 60 * 1000),
+        updated_at: new Date(potentialPickupDate.getTime() - 30 * 60 * 1000),
       });
     }
 

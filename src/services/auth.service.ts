@@ -9,7 +9,7 @@ import { Roles } from '@/enums/roles.enum';
 import Courier from '@/models/couriers.model';
 import { LoginUserDto, SignupDto } from '@/dtos/auth.dto';
 
-const createToken = (user: User): TokenData => {
+const createToken = (user: Partial<User>): TokenData => {
   const dataStoredInToken: DataStoredInToken = {
     id: user.id,
     firstname: user.firstName,
@@ -39,7 +39,7 @@ export class AuthService {
     return createUserData;
   }
 
-  public async login(userData: LoginUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: LoginUserDto): Promise<{ cookie: string; findUser: Partial<User> }> {
     const findUser: User = await User.findOne({
       attributes: { include: ['password'] },
       where: { email: userData.email },
@@ -49,10 +49,11 @@ export class AuthService {
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
     if (!isPasswordMatching) throw new HttpException(401, 'Password not matching');
 
-    const tokenData = createToken(findUser);
+    const { password, ...userWithoutPassword } = findUser.toJSON();
+    const tokenData = createToken(userWithoutPassword);
     const cookie = createCookie(tokenData);
 
-    return { cookie, findUser };
+    return { cookie, findUser: userWithoutPassword };
   }
 
   public async logout(userData: User): Promise<User> {

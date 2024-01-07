@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import { IsString, IsEmail, MinLength, MaxLength, IsOptional, ValidateNested, IsEnum, IsDecimal } from 'class-validator';
 import { Roles } from '@/enums/roles.enum';
 import { CourierStatuses } from '@/enums/courier-statuses.enum';
+import { VehicleEnum } from '@/enums/vehicle.enum';
 
 export class UpdateUserNestedCourierDto {
   @IsOptional()
@@ -17,6 +18,10 @@ export class UpdateUserNestedCourierDto {
   @Type(() => String)
   @IsDecimal()
   public longitude: string;
+
+  @IsOptional()
+  @IsEnum(VehicleEnum)
+  public vehicle: string;
 }
 
 export class UpdateUserAsAdminDto {

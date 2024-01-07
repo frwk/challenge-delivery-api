@@ -21,5 +21,10 @@ export class ComplaintRoute implements Routes {
     this.router.patch(`${this.path}/:id(\\d+)`, ValidationMiddleware(UpdateComplaintDto, true), this.complaintsController.updateComplaint);
     this.router.patch(`${this.path}/:id(\\d+)/resolved`, AuthMiddleware(), this.complaintsController.resolveComplaint);
     this.router.get(`${this.path}/user/:userId(\\d+)`, AuthMiddleware(), this.complaintsController.getComplaintsByUserId);
+    this.router.get(
+      `${this.path}/user/:userId(\\d+)/delivery/:deliveryId(\\d+)`,
+      AuthMiddleware(),
+      this.complaintsController.getComplaintsByUserAndDeliveryId,
+    );
   }
 }

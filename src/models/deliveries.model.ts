@@ -47,6 +47,12 @@ export default class Delivery extends Model {
   dropoffLongitude: number;
 
   @Column
+  pickupAddress: string;
+
+  @Column
+  dropoffAddress: string;
+
+  @Column
   pickupDate: Date;
 
   @Column
@@ -87,6 +93,9 @@ export default class Delivery extends Model {
   @ForeignKey(() => Pricing)
   @Column
   pricingId: number;
+
+  @BelongsTo(() => Pricing)
+  pricing: Pricing;
 
   @Column({ type: 'DECIMAL(9,6)', allowNull: false })
   total: number;

@@ -109,10 +109,11 @@ export class CourierController {
           [
             Sequelize.fn(
               'SUM',
-              Sequelize.fn(
-                'ST_DistanceSphere',
-                Sequelize.fn('ST_MakePoint', Sequelize.col('pickup_longitude'), Sequelize.col('pickup_latitude')),
-                Sequelize.fn('ST_MakePoint', Sequelize.col('dropoff_longitude'), Sequelize.col('dropoff_latitude')),
+              Sequelize.literal(
+                `CASE WHEN status = 'delivered' THEN ST_DistanceSphere(
+                  ST_MakePoint(pickup_longitude, pickup_latitude),
+                  ST_MakePoint(dropoff_longitude, dropoff_latitude)
+                ) ELSE 0 END`,
               ),
             ),
             'totalDistance',

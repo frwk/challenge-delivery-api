@@ -1,18 +1,17 @@
 'use strict';
 const bcrypt = require('bcryptjs');
-const { getRandomParisCoordinates } = require('./scripts/getRandomCoordinates');
+const { getRandomParisCoordinates } = require('./scripts/helpers');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface) {
     const users = [];
     const couriers = [];
     const statusOptions = ['available', 'unavailable', 'on_delivery'];
+    const vehicleOptions = ['moto', 'car', 'truck'];
 
     for (let i = 203; i <= 213; i++) {
       const hashedPassword = await bcrypt.hash('password123', 10);
       users.push({
-        first_name: `Firstname${i}`,
-        last_name: `Lastname${i}`,
         email: `user${i}@test.com`,
         first_name: `Courier${i}`,
         last_name: `Doe`,
@@ -29,6 +28,7 @@ module.exports = {
         status: statusOptions[i % statusOptions.length],
         latitude: randomCoordinates.latitude,
         longitude: randomCoordinates.longitude,
+        vehicle: vehicleOptions[i % vehicleOptions.length],
         created_at: new Date(),
         updated_at: new Date(),
       });

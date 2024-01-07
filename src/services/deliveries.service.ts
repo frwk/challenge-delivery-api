@@ -26,6 +26,13 @@ export class DeliveryService {
     return delivery;
   }
 
+  public async findOneDelivery(options: FindOptions<Attributes<Delivery>>): Promise<Delivery> {
+    const delivery: Delivery = await Delivery.findOne(options);
+    if (!delivery) throw new HttpException(404, "Delivery doesn't exist");
+
+    return delivery;
+  }
+
   public async createDelivery(data: CreateDeliveryDto | CreateDeliveryAsClientDto): Promise<Delivery> {
     return await Delivery.create({ ...data });
   }

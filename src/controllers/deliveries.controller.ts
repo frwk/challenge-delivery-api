@@ -14,6 +14,8 @@ import { NextFunction, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { Container } from 'typedi';
+import { LatLng } from '@googlemaps/google-maps-services-js';
+import Pricings from '@/models/pricings.models';
 
 export class DeliveryController {
   public deliveryService = Container.get(DeliveryService);
@@ -39,6 +41,18 @@ export class DeliveryController {
       if (!client) throw new HttpException(404, 'Client not found');
       const deliveries: Delivery[] = await Delivery.findAll({
         where: { clientId: clientId },
+        include: [
+          {
+            model: Courier,
+            include: [
+              {
+                model: User,
+                attributes: ['firstName', 'lastName'],
+              },
+            ],
+          },
+        ],
+        order: [['createdAt', 'DESC']],
       });
       res.status(200).json(deliveries);
     } catch (error) {
@@ -56,8 +70,14 @@ export class DeliveryController {
       }
       const deliveries: Delivery[] = await Delivery.findAll({
         where: { courierId: courierId },
+        include: { model: User, as: 'client', attributes: ['firstName', 'lastName'] },
       });
-      res.status(200).json(deliveries);
+      const deliveriesWithDistances: DeliveryWithDistances[] = deliveries.map(delivery => {
+        const distance = getDistanceInMeters(delivery.pickupLatitude, delivery.pickupLongitude, delivery.dropoffLatitude, delivery.dropoffLongitude);
+        const distanceToPickup = getDistanceInMeters(courier.latitude, courier.longitude, delivery.pickupLatitude, delivery.pickupLongitude);
+        return { ...delivery.get({ plain: true }), distance, distanceToPickup };
+      });
+      res.status(200).json(deliveriesWithDistances);
     } catch (error) {
       next(error);
     }
@@ -205,12 +225,18 @@ export class DeliveryController {
         where: Sequelize.literal(
           `ST_Distance(ST_MakePoint(pickup_longitude, pickup_latitude)::geography, ST_MakePoint(${courier.longitude}, ${courier.latitude})::geography) <= 15000000
           AND status = 'pending'
+          AND pricing.vehicle = '${courier.vehicle}'
           `,
         ),
         include: [
           {
             model: User,
             attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'],
+          },
+          {
+            model: Pricings,
+            attributes: ['id', 'vehicle'],
+            as: 'pricing',
           },
         ],
       });

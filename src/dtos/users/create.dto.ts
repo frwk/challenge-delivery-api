@@ -3,6 +3,7 @@ import { IsString, IsEmail, IsNotEmpty, MinLength, MaxLength, IsOptional, Valida
 import { Roles } from '@/enums/roles.enum';
 import { CourierStatuses } from '@/enums/courier-statuses.enum';
 import { SignupDto } from '../auth.dto';
+import { VehicleEnum } from '@/enums/vehicle.enum';
 
 export class CreateUserAsAdminDto {
   @IsEmail()
@@ -38,7 +39,7 @@ export class CreateUserAsAdminDto {
 export class CreateCourierDto {
   @IsOptional()
   @IsEnum(CourierStatuses)
-  public status: boolean;
+  public status: string;
 
   @IsOptional()
   @Type(() => String)
@@ -49,6 +50,9 @@ export class CreateCourierDto {
   @Type(() => String)
   @IsDecimal()
   public longitude: string;
+
+  @IsEnum(VehicleEnum)
+  public vehicle: string;
 
   @ValidateNested()
   @Type(() => SignupDto)
