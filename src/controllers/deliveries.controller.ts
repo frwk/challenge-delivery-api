@@ -1,5 +1,5 @@
 import FirebaseAdmin from '@/config/firebaseAdmin';
-import { CreateDeliveryDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
+import { CreateDeliveryDto, DeliveryTotalDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
 import { Roles } from '@/enums/roles.enum';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
@@ -8,7 +8,8 @@ import Courier from '@/models/couriers.model';
 import Delivery from '@/models/deliveries.model';
 import User from '@/models/users.model';
 import { DeliveryService } from '@/services/deliveries.service';
-import { getCoordinates, getDistanceInMeters } from '@/utils/helpers';
+import { PricingService } from '@/services/pricing.service';
+import { getCoordinates, getDistanceInMeters, getRouteInfos } from '@/utils/helpers';
 import { NextFunction, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize';
@@ -16,6 +17,7 @@ import { Container } from 'typedi';
 
 export class DeliveryController {
   public deliveryService = Container.get(DeliveryService);
+  public pricingService = Container.get(PricingService);
 
   public getDeliveries = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -72,6 +74,20 @@ export class DeliveryController {
     }
   };
 
+  public getDeliveryTotal = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data: DeliveryTotalDto = req.body;
+      const { distance, duration } = await getRouteInfos(data.pickupAddress, data.dropoffAddress);
+      data.distance = distance.value;
+      const deliveryTotal = await this.deliveryService.calculateDeliveryTotal(data.vehicle, data.urgency, distance.value);
+      data.total = deliveryTotal;
+      data.duration = duration.value;
+      return res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public createDelivery = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data: CreateDeliveryDto = req.body;
@@ -101,10 +117,17 @@ export class DeliveryController {
         [data.pickupLongitude, data.pickupLatitude] = pickupLocation;
         [data.dropoffLongitude, data.dropoffLatitude] = dropoffLocation;
       }
+      const { distance } = await getRouteInfos(data.pickupAddress, data.dropoffAddress);
+      const deliveryTotal = await this.deliveryService.calculateDeliveryTotal(data.vehicle, data.urgency, distance.value);
+      data.total = deliveryTotal;
+      const pricing = await this.pricingService.findByVehicleAndUrgency(data.vehicle, data.urgency);
+      data.pricingId = pricing.id;
+      data.confirmationCode = Math.floor(1000 + Math.random() * 9000).toString();
       const delivery: Delivery = await this.deliveryService.createDelivery(data);
       this.sendNewDeliveryNotification(delivery.id);
       res.status(201).json(delivery);
     } catch (error) {
+      console.log(error);
       next(error);
     }
   };

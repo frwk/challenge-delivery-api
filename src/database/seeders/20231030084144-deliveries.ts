@@ -52,6 +52,7 @@ module.exports = {
         dropoff_date: dropoffDate,
         client_id: Math.floor(Math.random() * 10) + 1,
         courier_id: courier?.id,
+        pricing_id: Math.floor(Math.random() * 9) + 1,
         confirmation_code: confirmationCode,
         status: status,
         notation: Math.floor(Math.random() * 5) + 1,

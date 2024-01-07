@@ -47,6 +47,13 @@ export const up: Migration = async ({ context: sequelize }) => {
       },
       onDelete: 'CASCADE',
     },
+    pricing_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'pricings',
+        key: 'id',
+      },
+    },
     confirmation_code: {
       type: DataTypes.STRING,
     },
@@ -56,6 +63,9 @@ export const up: Migration = async ({ context: sequelize }) => {
     },
     notation: {
       type: DataTypes.INTEGER,
+    },
+    total: {
+      type: DataTypes.DECIMAL,
     },
     created_at: {
       allowNull: false,

@@ -1,3 +1,6 @@
+import { HttpException } from '@/exceptions/HttpException';
+import { Client, LatLng, RouteLeg, TravelMode } from '@googlemaps/google-maps-services-js';
+
 export const getCoordinates = async (address: string): Promise<number[]> => {
   const response = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(address)}`);
   const data = await response.json();
@@ -28,4 +31,26 @@ export const getDistanceInMeters = (lat1: number, lon1: number, lat2: number, lo
 
 const deg2rad = deg => {
   return deg * (Math.PI / 180);
+};
+
+export const getRouteInfos = async (pickupAddress: LatLng, dropoffAddress: LatLng): Promise<RouteLeg> => {
+  const client = new Client({});
+  try {
+    const response = await client.directions({
+      params: {
+        origin: pickupAddress,
+        destination: dropoffAddress,
+        mode: TravelMode.driving,
+        departure_time: new Date(),
+        key: process.env.GOOGLE_MAPS_API_KEY,
+      },
+      timeout: 1000,
+    });
+    return response.data.routes[0].legs[0];
+  } catch (error) {
+    if (error.response.status === 404) {
+      throw new HttpException(404, 'Adresse ou trajet introuvable');
+    }
+    throw error;
+  }
 };

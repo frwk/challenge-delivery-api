@@ -1,5 +1,7 @@
 import { DeliveryStatuses } from '@/enums/delivery-statuses.enum';
 import { IsNotEmpty, IsString, IsNumber, Length, IsEnum, IsDateString, IsLatitude, IsLongitude, ValidateIf, IsOptional } from 'class-validator';
+import { VehicleEnum } from '@/enums/vehicle.enum';
+import { DeliveryUrgencyEnum } from '@/enums/delivery-urgency.enum';
 
 export class CreateDeliveryDto {
   @IsLongitude()
@@ -53,6 +55,19 @@ export class CreateDeliveryDto {
   @IsNumber()
   @IsOptional()
   courierId: number;
+
+  @IsNumber()
+  pricingId: number;
+
+  @IsNumber()
+  @IsOptional()
+  total: number;
+
+  @IsNotEmpty()
+  vehicle: VehicleEnum;
+
+  @IsNotEmpty()
+  urgency: DeliveryUrgencyEnum;
 }
 
 export class CreateDeliveryAsClientDto {
@@ -86,6 +101,12 @@ export class CreateDeliveryAsClientDto {
 
   @IsNumber()
   clientId: number;
+
+  @IsNotEmpty()
+  vehicle: VehicleEnum;
+
+  @IsNotEmpty()
+  urgency: DeliveryUrgencyEnum;
 }
 
 export class UpdateDeliveryDto {
@@ -129,4 +150,38 @@ export class UpdateDeliveryDto {
   @IsNumber()
   @IsOptional()
   courierId: number;
+
+  @IsNotEmpty()
+  vehicle: VehicleEnum;
+
+  @IsNotEmpty()
+  urgency: DeliveryUrgencyEnum;
+}
+
+export class DeliveryTotalDto {
+  @IsString()
+  @IsOptional()
+  pickupAddress: string;
+
+  @IsString()
+  @IsOptional()
+  dropoffAddress: string;
+
+  @IsNotEmpty()
+  vehicle: VehicleEnum;
+
+  @IsNotEmpty()
+  urgency: DeliveryUrgencyEnum;
+
+  @IsNumber()
+  @IsOptional()
+  total: number;
+
+  @IsNumber()
+  @IsOptional()
+  distance: number;
+
+  @IsNumber()
+  @IsOptional()
+  duration: number;
 }

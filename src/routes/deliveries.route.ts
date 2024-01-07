@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import { ValidationMiddleware } from '@middlewares/validation.middleware';
 import { DeliveryController } from '@/controllers/deliveries.controller';
-import { CreateDeliveryAsClientDto, CreateDeliveryDto } from '@/dtos/deliveries.dto';
+import { CreateDeliveryAsClientDto, CreateDeliveryDto, DeliveryTotalDto } from '@/dtos/deliveries.dto';
 import { AuthMiddleware } from '@/middlewares/auth.middleware';
 import { Roles } from '@/enums/roles.enum';
 
@@ -24,6 +24,12 @@ export class DeliveryRoute implements Routes {
       AuthMiddleware(Roles.CLIENT, Roles.ADMIN),
       ValidationMiddleware(CreateDeliveryAsClientDto),
       this.deliveryController.createDeliveryAsClient,
+    );
+    this.router.post(
+      `/users${this.path}/total`,
+      AuthMiddleware(Roles.CLIENT, Roles.ADMIN),
+      ValidationMiddleware(DeliveryTotalDto),
+      this.deliveryController.getDeliveryTotal,
     );
     this.router.patch(`${this.path}/:id(\\d+)`, ValidationMiddleware(CreateDeliveryDto, true), this.deliveryController.updateDelivery);
     this.router.delete(`${this.path}/:id(\\d+)`, this.deliveryController.deleteDelivery);

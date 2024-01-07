@@ -17,7 +17,7 @@ const createToken = (user: User): TokenData => {
     email: user.email,
     role: user.role as keyof typeof Roles,
   };
-  const expiresIn: number = 60 * 60; // an hour
+  const expiresIn: number = 7 * 24 * 60 * 60;
 
   return { expiresIn, token: sign(dataStoredInToken, process.env.SECRET_KEY, { expiresIn }) };
 };
