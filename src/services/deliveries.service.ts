@@ -8,19 +8,38 @@ import { PricingService } from '@services/pricing.service';
 import Pricings from '@models/pricings.models';
 import { VehicleEnum } from '@/enums/vehicle.enum';
 import { DeliveryUrgencyEnum } from '@/enums/delivery-urgency.enum';
+import Courier from '@/models/couriers.model';
+import User from '@/models/users.model';
 
 @Service()
 export class DeliveryService {
   constructor(public pricingService: PricingService) {}
 
   public async findAllDeliveries(options: FindOptions<Attributes<Delivery>> = {}): Promise<Delivery[]> {
-    const defaultOptions = { include: { all: true } } as FindOptions<Attributes<Delivery>>;
+    const defaultOptions = {
+      include: [
+        { all: true },
+        {
+          model: Courier,
+          include: [{ model: User, attributes: ['id', 'firstName', 'lastName'], paranoid: false }],
+        },
+      ],
+    };
     const allDeliveries: Delivery[] = await Delivery.findAll({ ...defaultOptions, ...options });
     return allDeliveries;
   }
 
   public async findDeliveryById(deliveryId: number, options: FindOptions<Attributes<Delivery>> = {}): Promise<Delivery> {
-    const delivery: Delivery = await Delivery.findByPk(deliveryId, { ...options });
+    const defaultOptions = {
+      include: [
+        { all: true },
+        {
+          model: Courier,
+          include: [{ model: User, paranoid: false }],
+        },
+      ],
+    };
+    const delivery: Delivery = await Delivery.findByPk(deliveryId, { ...defaultOptions, ...options });
     if (!delivery) throw new HttpException(404, "Delivery doesn't exist");
 
     return delivery;
