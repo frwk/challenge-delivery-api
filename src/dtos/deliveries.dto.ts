@@ -15,6 +15,7 @@ import {
   IsOptional,
   Min,
   Max,
+  IsArray,
 } from 'class-validator';
 
 export class CreateDeliveryDto {
@@ -203,4 +204,14 @@ export class DeliveryTotalDto {
   @IsNumber()
   @IsOptional()
   duration: number;
+}
+
+export class DeliveryDirectionDto {
+  @IsArray()
+  @IsNotEmpty()
+  from: [number, number];
+
+  @IsArray()
+  @IsNotEmpty()
+  to: [number, number];
 }
