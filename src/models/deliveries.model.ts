@@ -94,6 +94,9 @@ export default class Delivery extends Model {
   @Column
   pricingId: number;
 
+  @BelongsTo(() => Pricing)
+  pricing: Pricing;
+
   @Column({ type: 'DECIMAL(9,6)', allowNull: false })
   total: number;
 

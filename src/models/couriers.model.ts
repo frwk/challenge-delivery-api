@@ -21,6 +21,7 @@ import { DataTypes } from 'sequelize';
 import userMongo from '@/database/mongo/denormalization/userMongo';
 import courierMongo from '@/database/mongo/denormalization/courierMongo';
 import restoreSequelizeAttributesOnClass from './helpers/restoreAttributes';
+import { VehicleEnum } from '@/enums/vehicle.enum';
 
 @Table({ tableName: 'couriers', underscored: true })
 export default class Courier extends Model {
@@ -43,6 +44,10 @@ export default class Courier extends Model {
 
   @Column({ type: 'DECIMAL(9,6)', allowNull: true })
   longitude: number;
+
+  @Default(VehicleEnum.CAR)
+  @Column(DataTypes.ENUM(VehicleEnum.MOTO, VehicleEnum.CAR, VehicleEnum.TRUCK))
+  vehicle: string;
 
   @ForeignKey(() => User)
   @Column

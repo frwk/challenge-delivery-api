@@ -15,6 +15,7 @@ import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { Container } from 'typedi';
 import { LatLng } from '@googlemaps/google-maps-services-js';
+import Pricings from '@/models/pricings.models';
 
 export class DeliveryController {
   public deliveryService = Container.get(DeliveryService);
@@ -224,12 +225,18 @@ export class DeliveryController {
         where: Sequelize.literal(
           `ST_Distance(ST_MakePoint(pickup_longitude, pickup_latitude)::geography, ST_MakePoint(${courier.longitude}, ${courier.latitude})::geography) <= 15000000
           AND status = 'pending'
+          AND pricing.vehicle = '${courier.vehicle}'
           `,
         ),
         include: [
           {
             model: User,
             attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'],
+          },
+          {
+            model: Pricings,
+            attributes: ['id', 'vehicle'],
+            as: 'pricing',
           },
         ],
       });
@@ -263,30 +270,6 @@ export class DeliveryController {
       });
       if (!delivery) throw new HttpException(404, 'No current delivery');
       res.status(200).json(delivery);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public getEstimatedDeliveryTime = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const courierId = Number(req.params.courierId);
-      const courier = await Courier.findByPk(courierId);
-      if (!courier) throw new HttpException(404, 'Courier not found');
-      const deliveryId = Number(req.params.deliveryId);
-      const delivery = await Delivery.findByPk(deliveryId);
-      if (!delivery) throw new HttpException(404, 'Delivery not found');
-      const pickupLocation: LatLng = {
-        lat: delivery.pickupLatitude,
-        lng: delivery.pickupLongitude,
-      };
-
-      const dropoffLocation: LatLng = {
-        lat: delivery.dropoffLatitude,
-        lng: delivery.dropoffLongitude,
-      };
-      const response = getEstimatedDeliveryTimeWithGoogleMaps(pickupLocation, dropoffLocation);
-      res.status(200).json({ response });
     } catch (error) {
       next(error);
     }

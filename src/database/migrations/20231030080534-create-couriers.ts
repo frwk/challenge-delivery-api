@@ -21,6 +21,10 @@ export const up: Migration = async ({ context: sequelize }) => {
       type: DataTypes.DECIMAL(9, 6),
       allowNull: true,
     },
+    vehicle: {
+      type: DataTypes.ENUM('moto', 'car', 'truck'),
+      defaultValue: 'car',
+    },
     user_id: {
       type: DataTypes.INTEGER,
       references: {

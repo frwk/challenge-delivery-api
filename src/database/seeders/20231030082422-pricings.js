@@ -5,9 +5,8 @@ module.exports = {
   async up(queryInterface) {
     const pricings = [];
 
-    // Moto
     pricings.push({
-      vehicle: 'Moto',
+      vehicle: 'moto',
       urgency: 'Normal',
       units: 1,
       created_at: new Date(),
@@ -15,7 +14,7 @@ module.exports = {
     });
 
     pricings.push({
-      vehicle: 'Moto',
+      vehicle: 'moto',
       urgency: 'Urgent',
       units: 2,
       created_at: new Date(),
@@ -23,16 +22,15 @@ module.exports = {
     });
 
     pricings.push({
-      vehicle: 'Moto',
+      vehicle: 'moto',
       urgency: 'Direct',
       units: 6,
       created_at: new Date(),
       updated_at: new Date(),
     });
 
-    // Voiture
     pricings.push({
-      vehicle: 'Voiture',
+      vehicle: 'car',
       urgency: 'Normal',
       units: 6,
       created_at: new Date(),
@@ -40,7 +38,7 @@ module.exports = {
     });
 
     pricings.push({
-      vehicle: 'Voiture',
+      vehicle: 'car',
       urgency: 'Urgent',
       units: 10,
       created_at: new Date(),
@@ -48,16 +46,15 @@ module.exports = {
     });
 
     pricings.push({
-      vehicle: 'Voiture',
+      vehicle: 'car',
       urgency: 'Direct',
       units: 20,
       created_at: new Date(),
       updated_at: new Date(),
     });
 
-    // Camion
     pricings.push({
-      vehicle: 'Camion',
+      vehicle: 'truck',
       urgency: 'Normal',
       units: 10,
       created_at: new Date(),
@@ -65,7 +62,7 @@ module.exports = {
     });
 
     pricings.push({
-      vehicle: 'Camion',
+      vehicle: 'truck',
       urgency: 'Urgent',
       units: 15,
       created_at: new Date(),
@@ -73,7 +70,7 @@ module.exports = {
     });
 
     pricings.push({
-      vehicle: 'Camion',
+      vehicle: 'truck',
       urgency: 'Direct',
       units: 30,
       created_at: new Date(),
