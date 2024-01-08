@@ -82,14 +82,14 @@ export default class Delivery extends Model {
   clientId: number;
 
   @BelongsTo(() => User)
-  client: User;
+  client: ReturnType<() => User>;
 
   @ForeignKey(() => Courier)
   @Column
   courierId: number;
 
   @BelongsTo(() => Courier)
-  courier: Courier;
+  courier: ReturnType<() => Courier>;
 
   @ForeignKey(() => Pricing)
   @Column

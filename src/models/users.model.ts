@@ -80,7 +80,7 @@ export default class User extends Model {
   rewards: Reward[];
 
   @HasOne(() => Courier, 'user_id')
-  courier: Courier;
+  courier: ReturnType<() => Courier>;
 
   @BeforeCreate
   @BeforeUpdate
