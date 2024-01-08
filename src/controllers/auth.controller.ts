@@ -34,6 +34,17 @@ export class AuthController {
     }
   };
 
+  public logInAdmin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userData: LoginUserDto = req.body;
+      const { cookie, findUser } = await this.auth.loginAdmin(userData);
+      res.setHeader('Set-Cookie', [cookie]);
+      res.status(200).json(findUser);
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public logOut = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       res.setHeader('Set-Cookie', ['Authorization=; Path=/; Max-age=0']);
