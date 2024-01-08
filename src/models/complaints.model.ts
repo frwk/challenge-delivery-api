@@ -38,7 +38,7 @@ export default class Complaint extends Model {
   deliveryId: number;
 
   @BelongsTo(() => Delivery)
-  delivery: Delivery;
+  delivery: ReturnType<() => Delivery>;
 
   @ForeignKey(() => User)
   @Column

@@ -27,10 +27,10 @@ export default class ComplaintMessage extends Model {
   content: string;
 
   @BelongsTo(() => Complaint)
-  complaint: Complaint;
+  complaint: ReturnType<() => Complaint>;
 
   @BelongsTo(() => User)
-  user: User;
+  user: ReturnType<() => User>;
 
   @CreatedAt
   readonly createdAt: Date;
