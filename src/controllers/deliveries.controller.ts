@@ -313,7 +313,6 @@ export class DeliveryController {
       const direction = await getRouteInfos({ lat: data.from[0], lng: data.from[1] }, { lat: data.to[0], lng: data.to[1] }, 'direction');
       res.status(200).json(direction);
     } catch (error) {
-      console.log('error', error);
       next(error);
     }
   };
