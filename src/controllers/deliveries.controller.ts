@@ -11,8 +11,7 @@ import { DeliveryService } from '@/services/deliveries.service';
 import { PricingService } from '@/services/pricing.service';
 import { getCoordinates, getDistanceInMeters, getRouteInfos } from '@/utils/helpers';
 import { NextFunction, Request, Response } from 'express';
-import { Op } from 'sequelize';
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { Container } from 'typedi';
 import { RouteLeg } from '@googlemaps/google-maps-services-js';
 import Pricings from '@/models/pricings.models';
@@ -99,9 +98,11 @@ export class DeliveryController {
       const data: DeliveryTotalDto = req.body;
       const { distance, duration } = (await getRouteInfos(data.pickupAddress, data.dropoffAddress)) as RouteLeg;
       data.distance = distance.value;
-      const deliveryTotal = await this.deliveryService.calculateDeliveryTotal(data.vehicle, data.urgency, distance.value);
-      data.total = deliveryTotal;
-      data.duration = duration.value;
+
+      const pricing: Pricings = await this.pricingService.findByVehicleAndUrgency(data.vehicle, data.urgency);
+      data.total = await this.deliveryService.calculateDeliveryTotal(pricing, distance.value);
+
+      data.duration = duration.value + pricing.acceptanceDelay;
       return res.status(200).json(data);
     } catch (error) {
       next(error);
@@ -140,6 +141,7 @@ export class DeliveryController {
       const { distance } = (await getRouteInfos(data.pickupAddress, data.dropoffAddress)) as RouteLeg;
       const deliveryTotal = await this.deliveryService.calculateDeliveryTotal(data.vehicle, data.urgency, distance.value);
       data.total = deliveryTotal;
+
       const pricing = await this.pricingService.findByVehicleAndUrgency(data.vehicle, data.urgency);
       data.pricingId = pricing.id;
       data.confirmationCode = Math.floor(1000 + Math.random() * 9000).toString();

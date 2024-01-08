@@ -25,6 +25,9 @@ export default class Pricings extends Model {
   @Column
   units: number;
 
+  @Column
+  acceptanceDelay: number;
+
   @CreatedAt
   readonly createdAt: Date;
 
