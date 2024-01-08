@@ -1,5 +1,5 @@
 import FirebaseAdmin from '@/config/firebaseAdmin';
-import { CreateDeliveryDto, DeliveryTotalDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
+import { CreateDeliveryDto, DeliveryDirectionDto, DeliveryTotalDto, UpdateDeliveryDto } from '@/dtos/deliveries.dto';
 import { Roles } from '@/enums/roles.enum';
 import { HttpException } from '@/exceptions/HttpException';
 import { RequestWithUser } from '@/interfaces/auth.interface';
@@ -302,6 +302,16 @@ export class DeliveryController {
         ],
       });
       res.status(200).json(deliveries);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getDirectionFromLatLng = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data: DeliveryDirectionDto = req.body;
+      const direction = await getRouteInfos({ lat: data.from[0], lng: data.from[1] }, { lat: data.to[0], lng: data.to[1] }, 'direction');
+      res.status(200).json(direction);
     } catch (error) {
       next(error);
     }

@@ -10,6 +10,7 @@ import Courier from '@/models/couriers.model';
 import { LoginUserDto, SignupDto } from '@/dtos/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import Delivery from '@/models/deliveries.model';
+import { Roles } from '@/enums/roles.enum';
 
 export class DeliveryTrackingController {
   public auth = Container.get(AuthService);
@@ -57,6 +58,22 @@ export class DeliveryTrackingController {
     const deliveryId = Number(req.params.deliveryId);
     const wsId = uuidv4();
     const userInfo = req.user;
+    const delivery = await Delivery.findByPk(deliveryId, {
+      attributes: ['clientId', 'courierId'],
+    });
+    if (!delivery) throw new HttpException(404, 'Delivery not found');
+    if (userInfo.role !== Roles.ADMIN && userInfo.role !== Roles.SUPPORT) {
+      if (userInfo.role === Roles.CLIENT && userInfo.id !== delivery.clientId) {
+        return ws.close(1008, 'Access denied');
+      }
+      const courier = await Courier.findByPk(delivery.courierId, {
+        attributes: ['userId'],
+      });
+      if (!courier) throw new HttpException(404, 'Courier not found');
+      if (userInfo.role === Roles.COURIER && userInfo.id !== courier.userId) {
+        return ws.close(1008, 'Access denied');
+      }
+    }
     ws.send(JSON.stringify({ type: 'join', data: { wsId, userInfo, deliveryId } }));
     this.deliveryTrackingClientsMap.set(wsId, { ws, userInfo, deliveryId });
     console.log(`Delivery tracking client ${wsId} connected`);

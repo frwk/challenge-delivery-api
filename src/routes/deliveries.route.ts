@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import { ValidationMiddleware } from '@middlewares/validation.middleware';
 import { DeliveryController } from '@/controllers/deliveries.controller';
-import { CreateDeliveryAsClientDto, CreateDeliveryDto, DeliveryTotalDto } from '@/dtos/deliveries.dto';
+import { CreateDeliveryAsClientDto, CreateDeliveryDto, DeliveryDirectionDto, DeliveryTotalDto } from '@/dtos/deliveries.dto';
 import { AuthMiddleware } from '@/middlewares/auth.middleware';
 import { Roles } from '@/enums/roles.enum';
 
@@ -18,6 +18,7 @@ export class DeliveryRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}`, this.deliveryController.getDeliveries);
     this.router.get(`${this.path}/:id(\\d+)`, this.deliveryController.getDeliveryById);
+    this.router.post(`${this.path}/direction`, ValidationMiddleware(DeliveryDirectionDto), this.deliveryController.getDirectionFromLatLng);
     this.router.post(`${this.path}`, AuthMiddleware(Roles.ADMIN), ValidationMiddleware(CreateDeliveryDto), this.deliveryController.createDelivery);
     this.router.post(
       `/users${this.path}/new`,

@@ -33,7 +33,7 @@ const deg2rad = deg => {
   return deg * (Math.PI / 180);
 };
 
-export const getRouteInfos = async (pickupAddress: LatLng, dropoffAddress: LatLng): Promise<RouteLeg> => {
+export const getRouteInfos = async (pickupAddress: LatLng, dropoffAddress: LatLng, type?: 'direction'): Promise<RouteLeg | [number, number][]> => {
   const client = new Client({});
   try {
     const response = await client.directions({
@@ -46,7 +46,17 @@ export const getRouteInfos = async (pickupAddress: LatLng, dropoffAddress: LatLn
       },
       timeout: 1000,
     });
-    return response.data.routes[0].legs[0];
+    switch (type) {
+      case 'direction':
+        const util = require('@googlemaps/google-maps-services-js/dist/util');
+        const decodedCoordinates = util.decodePath(response.data.routes[0].overview_polyline.points);
+        const coordinates = decodedCoordinates.map((coordinate: { lat: number; lng: number }) => {
+          return [coordinate.lat, coordinate.lng];
+        });
+        return coordinates;
+      default:
+        return response.data.routes[0].legs[0];
+    }
   } catch (error) {
     if (error.response.status === 404) {
       throw new HttpException(404, 'Adresse ou trajet introuvable');

@@ -25,7 +25,11 @@ export class CourierController {
     res.flushHeaders();
 
     const findAllCouriers: InferSchemaType<typeof CourierSchema>[] = await this.courierService.findAllCourier();
-    const sendCouriersLocations = setInterval(() => {
+    res.write(`data: ${JSON.stringify(findAllCouriers)}\n\n`);
+    res.flush();
+
+    const sendCouriersLocations = setInterval(async () => {
+      const findAllCouriers: InferSchemaType<typeof CourierSchema>[] = await this.courierService.findAllCourier();
       res.write(`data: ${JSON.stringify(findAllCouriers)}\n\n`);
       res.flush();
     }, 5000);
