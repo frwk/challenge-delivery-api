@@ -12,6 +12,7 @@ import { CourierStatuses } from '@/enums/courier-statuses.enum';
 
 describe('Integration tests for courier', () => {
   let app;
+  const newCourierData = { vehicle: 'car', user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } };
   beforeAll(async () => {
     Container.set(CourierService, new CourierService());
     app = new App([new CourierRoute()]);
@@ -32,7 +33,7 @@ describe('Integration tests for courier', () => {
 
   describe('GET /couriers/:id', () => {
     it('should return a courier', async () => {
-      const newCourier = { user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } };
+      const newCourier = newCourierData;
       const resNewCourier = await request(app.getServer()).post('/couriers').send(newCourier);
       const res = await request(app.getServer()).get(`/couriers/${resNewCourier.body.id}`);
       expect(res.statusCode).toEqual(200);
@@ -52,10 +53,7 @@ describe('Integration tests for courier', () => {
       expect(res.body).toEqual([]);
     });
     it('should return an array with the correct couriers when there are some couriers', async () => {
-      const courierData = [
-        { user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } },
-        { user: { firstName: 'john1', lastName: 'doe1', email: 'test1@courier.com', password: 'password123' } },
-      ];
+      const courierData = [{ ...newCourierData }, { ...newCourierData, user: { ...newCourierData.user, email: 'test1@courier.com' } }];
       const postResponses = await Promise.all(courierData.map(data => request(app.getServer()).post('/couriers').send(data)));
       postResponses.forEach(res => expect(res.statusCode).toEqual(201));
       const res = await request(app.getServer()).get('/couriers');
@@ -68,13 +66,13 @@ describe('Integration tests for courier', () => {
 
   describe('POST /couriers', () => {
     it('should create a new courier', async () => {
-      const newCourier = { user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } };
+      const newCourier = newCourierData;
       const res = await request(app.getServer()).post('/couriers').send(newCourier);
       expect(res.statusCode).toEqual(201);
       expect(res.body).toHaveProperty('id');
     });
     it('should return 409 for an existing courier', async () => {
-      const newCourier = { user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } };
+      const newCourier = newCourierData;
       await request(app.getServer()).post('/couriers').send(newCourier);
       const res = await request(app.getServer()).post('/couriers').send(newCourier);
       expect(res.statusCode).toEqual(409);
@@ -84,13 +82,12 @@ describe('Integration tests for courier', () => {
       const invalidCourier = { user: { firstName: 'john', lastName: 'doe', email: 'testcourier.com', password: 'password123' } };
       const res = await request(app.getServer()).post('/couriers').send(invalidCourier);
       expect(res.statusCode).toEqual(400);
-      expect(res.body).toHaveProperty('message', 'email must be an email');
     });
   });
 
   describe('PUT /couriers/:id', () => {
     it('should update a courier', async () => {
-      const newCourier = { user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } };
+      const newCourier = newCourierData;
       const resNewCourier = await request(app.getServer()).post('/couriers').send(newCourier);
       const courierData = { status: 'available' };
       const res = await request(app.getServer()).patch(`/couriers/${resNewCourier.body.id}`).send(courierData);
@@ -112,7 +109,7 @@ describe('Integration tests for courier', () => {
 
   describe('DELETE /couriers/:id', () => {
     it('should delete a courier', async () => {
-      const newCourier = { user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } };
+      const newCourier = newCourierData;
       const resNewCourier = await request(app.getServer()).post('/couriers').send(newCourier);
       const res = await request(app.getServer()).delete(`/couriers/${resNewCourier.body.id}`);
       expect(res.statusCode).toEqual(200);

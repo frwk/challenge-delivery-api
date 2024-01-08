@@ -4,6 +4,7 @@ import { DeliveryUrgencyEnum } from '@/enums/delivery-urgency.enum';
 import { HttpException } from '@exceptions/HttpException';
 import Pricings from '@models/pricings.models';
 import { Attributes, FindOptions } from 'sequelize';
+import { CreatePricingDto } from '@/dtos/pricings.dto';
 
 @Service()
 export class PricingService {
@@ -24,6 +25,11 @@ export class PricingService {
     });
 
     if (!pricing) throw new HttpException(404, 'Pricing not found');
+    return pricing;
+  }
+
+  public async createPricing(data: CreatePricingDto): Promise<Pricings> {
+    const pricing: Pricings = await Pricings.create({ ...data });
     return pricing;
   }
 }

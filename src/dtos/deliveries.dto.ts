@@ -80,13 +80,12 @@ export class CreateDeliveryDto {
   pricingId: number;
 
   @IsNumber()
-  @IsOptional()
   total: number;
 
-  @IsNotEmpty()
+  @IsEnum(VehicleEnum)
   vehicle: VehicleEnum;
 
-  @IsNotEmpty()
+  @IsEnum(DeliveryUrgencyEnum)
   urgency: DeliveryUrgencyEnum;
 }
 
@@ -122,10 +121,10 @@ export class CreateDeliveryAsClientDto {
   @IsNumber()
   clientId: number;
 
-  @IsNotEmpty()
+  @IsEnum(VehicleEnum)
   vehicle: VehicleEnum;
 
-  @IsNotEmpty()
+  @IsEnum(DeliveryUrgencyEnum)
   urgency: DeliveryUrgencyEnum;
 }
 

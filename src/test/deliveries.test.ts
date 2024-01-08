@@ -5,6 +5,7 @@ import { DeliveryRoute } from '@/routes/deliveries.route';
 import Delivery from '@/models/deliveries.model';
 import { UserRoute } from '@/routes/users.route';
 import { CourierRoute } from '@/routes/couriers.route';
+import { PricingRoute } from '@/routes/pricings.route';
 
 jest.mock('../middlewares/auth.middleware.ts', () => ({
   AuthMiddleware: (...roles) => {
@@ -15,11 +16,14 @@ jest.mock('../middlewares/auth.middleware.ts', () => ({
 }));
 
 describe('Integration tests for deliveries', () => {
-  let app, client, courier, deliveryData;
+  let app, client, courier, pricing, deliveryData;
   const route = new DeliveryRoute().path;
 
   beforeAll(async () => {
-    app = new App([new DeliveryRoute(), new UserRoute(), new CourierRoute()]);
+    app = new App([new DeliveryRoute(), new UserRoute(), new CourierRoute(), new PricingRoute()]);
+    jest.mock('../controllers/deliveries.controller.ts', () => ({
+      sendNewDeliveryNotification: jest.fn(),
+    }));
     await app.initialize();
     await migrator.up();
     client = await request(app.getServer())
@@ -28,18 +32,20 @@ describe('Integration tests for deliveries', () => {
     courier = await request(app.getServer())
       .post('/couriers')
       .send({ user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } });
+    pricing = await request(app.getServer()).post('/pricings').send({ vehicle: 'car', urgency: 'urgent', units: 10 });
     deliveryData = {
       pickupLongitude: '2.294481',
       pickupLatitude: '48.858370',
       dropoffLongitude: '2.352245',
       dropoffLatitude: '48.860642',
-      pickupDate: new Date(),
-      dropoffDate: new Date(),
-      price: 10,
+      pricingId: pricing.body.id,
       courierId: courier.body.id,
       clientId: client.body.id,
       confirmationCode: '1234',
       status: 'pending',
+      vehicle: 'car',
+      urgency: 'urgent',
+      total: 10,
     };
   });
 
