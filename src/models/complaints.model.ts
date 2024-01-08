@@ -49,7 +49,7 @@ export default class Complaint extends Model {
   status: ComplaintStatuses;
 
   @BelongsTo(() => User)
-  user: User;
+  user: ReturnType<() => User>;
 
   @CreatedAt
   readonly createdAt: Date;

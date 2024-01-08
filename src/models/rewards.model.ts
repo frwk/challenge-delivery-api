@@ -19,7 +19,7 @@ export default class Reward extends Model {
   userId: number;
 
   @BelongsTo(() => User)
-  user: User;
+  user: ReturnType<() => User>;
 
   @CreatedAt
   readonly createdAt: Date;
