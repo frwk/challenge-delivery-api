@@ -101,7 +101,7 @@ jobs:
                 -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
                 -e POSTGRES_DB=${{ secrets.POSTGRES_DATABASE }} \
                 -v pgdata:/var/lib/postgresql/data \
-                postgres
+                postgis/postgis
             fi
             if [ ! "$(docker ps | grep mongo)" ]; then
               if [ "$(docker ps -a | grep mongo)" ]; then
