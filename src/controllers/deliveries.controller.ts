@@ -266,10 +266,42 @@ export class DeliveryController {
             model: User,
             attributes: ['id', 'email', 'firstName', 'lastName', 'deletedAt'],
           },
+          {
+            model: Courier,
+          },
         ],
       });
       if (!delivery) throw new HttpException(404, 'No current delivery');
       res.status(200).json(delivery);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getClientCurrentDeliveries = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const clientId = Number(req.params.clientId);
+      if (req.user.role !== Roles.ADMIN) {
+        if (req.user.id !== clientId) throw new HttpException(403, 'Access denied');
+      }
+      const client = await User.findByPk(clientId);
+      if (!client) throw new HttpException(404, 'Client not found');
+      const deliveries: Delivery[] = await Delivery.findAll({
+        where: { clientId: clientId, status: { [Op.in]: ['pending', 'accepted', 'picked_up'] } },
+        order: [['updatedAt', 'DESC']],
+        include: [
+          {
+            model: Courier,
+            include: [
+              {
+                model: User,
+                attributes: ['firstName', 'lastName'],
+              },
+            ],
+          },
+        ],
+      });
+      res.status(200).json(deliveries);
     } catch (error) {
       next(error);
     }

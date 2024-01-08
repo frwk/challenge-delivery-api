@@ -1,7 +1,21 @@
 import { DeliveryStatuses } from '@/enums/delivery-statuses.enum';
-import { IsNotEmpty, IsString, IsNumber, Length, IsEnum, IsDateString, IsLatitude, IsLongitude, ValidateIf, IsOptional } from 'class-validator';
 import { VehicleEnum } from '@/enums/vehicle.enum';
 import { DeliveryUrgencyEnum } from '@/enums/delivery-urgency.enum';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsInt,
+  Length,
+  IsEnum,
+  IsDateString,
+  IsLatitude,
+  IsLongitude,
+  ValidateIf,
+  IsOptional,
+  Min,
+  Max,
+} from 'class-validator';
 
 export class CreateDeliveryDto {
   @IsLongitude()
@@ -48,6 +62,12 @@ export class CreateDeliveryDto {
   @IsEnum(DeliveryStatuses)
   @IsOptional()
   status: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  @IsOptional()
+  notation: number;
 
   @IsNumber()
   clientId: number;

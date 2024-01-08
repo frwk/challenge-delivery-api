@@ -45,6 +45,25 @@ export class AuthService {
       where: { email: userData.email },
       include: [{ model: Courier }],
     });
+    if (!findUser.role || (findUser.role !== Roles.COURIER && findUser.role !== Roles.CLIENT)) throw new HttpException(401, `Invalid credentials`);
+    if (!findUser) throw new HttpException(401, `Invalid credentials`);
+    const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
+    if (!isPasswordMatching) throw new HttpException(401, 'Password not matching');
+
+    const { password, ...userWithoutPassword } = findUser.toJSON();
+    const tokenData = createToken(userWithoutPassword);
+    const cookie = createCookie(tokenData);
+
+    return { cookie, findUser: userWithoutPassword };
+  }
+
+  public async loginAdmin(userData: LoginUserDto): Promise<{ cookie: string; findUser: Partial<User> }> {
+    const findUser: User = await User.findOne({
+      attributes: { include: ['password'] },
+      where: { email: userData.email },
+      include: [{ model: Courier }],
+    });
+    if (!findUser.role || (findUser.role !== Roles.ADMIN && findUser.role !== Roles.SUPPORT)) throw new HttpException(401, `Invalid credentials`);
     if (!findUser) throw new HttpException(401, `Invalid credentials`);
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
     if (!isPasswordMatching) throw new HttpException(401, 'Password not matching');
