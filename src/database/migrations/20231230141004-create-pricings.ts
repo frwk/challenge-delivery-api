@@ -19,6 +19,9 @@ export const up: Migration = async ({ context: sequelize }) => {
     units: {
       type: DataTypes.INTEGER,
     },
+    acceptance_delay: {
+      type: DataTypes.INTEGER,
+    },
     created_at: {
       allowNull: false,
       type: DataTypes.DATE,

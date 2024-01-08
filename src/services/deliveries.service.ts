@@ -73,8 +73,7 @@ export class DeliveryService {
     return delivery;
   }
 
-  public async calculateDeliveryTotal(vehicle: VehicleEnum, urgency: DeliveryUrgencyEnum, distance: number): Promise<number> {
-    const pricing: Pricing = await this.pricingService.findByVehicleAndUrgency(vehicle, urgency);
+  public async calculateDeliveryTotal(pricing: Pricings, distance: number): Promise<number> {
     if (!pricing) throw new HttpException(404, "Pricing doesn't exist");
 
     let totalCost = (pricing.units + (distance / 1000) * Pricings.distanceRate) * Pricings.fixedRate;
