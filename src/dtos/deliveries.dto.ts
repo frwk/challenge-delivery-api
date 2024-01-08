@@ -64,8 +64,9 @@ export class CreateDeliveryDto {
   status: string;
 
   @IsInt()
-  @Min(0)
+  @Min(1)
   @Max(5)
+  @IsOptional()
   notation: number;
 
   @IsNumber()

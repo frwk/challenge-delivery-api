@@ -56,13 +56,15 @@ export class UserController {
         if (!userId) throw new HttpException(403, 'Access denied');
       }
       const { email } = req.body as UpdateUserAsAdminDto | UpdateUserDto;
-      const existingUser = await this.userService.findOneUser({
-        where: {
-          email,
-        },
-      });
-      if (existingUser && existingUser.id !== userId) {
-        throw new HttpException(409, `Email ${email} already in use`);
+      if (email) {
+        const existingUser = await this.userService.findOneUser({
+          where: {
+            email,
+          },
+        });
+        if (existingUser && existingUser.id !== userId) {
+          throw new HttpException(409, `Email ${email} already in use`);
+        }
       }
       const updateUserData: User = await this.userService.updateUser(userId, req.body as UpdateUserAsAdminDto | UpdateUserDto);
       res.status(200).json(updateUserData);
