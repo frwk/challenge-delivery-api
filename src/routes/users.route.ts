@@ -18,8 +18,8 @@ export class UserRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.userController.getUsers);
-    this.router.get(`${this.path}/:id(\\d+)`, this.userController.getUserById);
+    this.router.get(`${this.path}`, AuthMiddleware(Roles.ADMIN), this.userController.getUsers);
+    this.router.get(`${this.path}/:id(\\d+)`, AuthMiddleware(), this.userController.getUserById);
     this.router.post(`${this.path}`, AuthMiddleware(Roles.ADMIN), ValidationMiddleware(CreateUserAsAdminDto), this.userController.createUser);
     this.router.patch(
       `${this.path}/:id(\\d+)`,
@@ -28,8 +28,13 @@ export class UserRoute implements Routes {
       this.userController.updateUser,
     );
     this.router.patch(`/me`, AuthMiddleware(), ValidationMiddleware(UpdateUserDto), this.userController.updateUser);
-    this.router.delete(`${this.path}/:id(\\d+)`, this.userController.deleteUser);
-    this.router.post(`${this.path}/:id(\\d+)/verify-password`, ValidationMiddleware(VerifyPasswordDto), this.userController.verifyPassword);
+    this.router.delete(`${this.path}/:id(\\d+)`, AuthMiddleware(Roles.ADMIN, Roles.SUPPORT), this.userController.deleteUser);
+    this.router.post(
+      `${this.path}/:id(\\d+)/verify-password`,
+      AuthMiddleware(),
+      ValidationMiddleware(VerifyPasswordDto),
+      this.userController.verifyPassword,
+    );
     this.router.get(`${this.path}/:id(\\d+)/stats`, AuthMiddleware(Roles.ADMIN, Roles.CLIENT), this.userController.getUserStats);
   }
 }

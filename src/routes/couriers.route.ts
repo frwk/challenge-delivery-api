@@ -17,12 +17,21 @@ export class CourierRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.courierController.getCouriers);
+    this.router.get(`${this.path}`, AuthMiddleware(Roles.ADMIN, Roles.SUPPORT), this.courierController.getCouriers);
     this.router.get(`${this.path}/map`, this.courierController.getLocations);
-    this.router.get(`${this.path}/:id(\\d+)`, this.courierController.getCourierById);
+    this.router.get(`${this.path}/:id(\\d+)`, AuthMiddleware(), this.courierController.getCourierById);
     this.router.post(`${this.path}`, ValidationMiddleware(CreateCourierDto), this.courierController.createCourier);
-    this.router.patch(`${this.path}/:id(\\d+)`, ValidationMiddleware(UpdateCourierDto, true), this.courierController.updateCourier);
-    this.router.delete(`${this.path}/:id(\\d+)`, this.courierController.deleteCourier);
-    this.router.get(`${this.path}/:id(\\d+)/stats`, AuthMiddleware(Roles.ADMIN, Roles.COURIER), this.courierController.getCourierStats);
+    this.router.patch(
+      `${this.path}/:id(\\d+)`,
+      AuthMiddleware(Roles.ADMIN, Roles.SUPPORT, Roles.COURIER),
+      ValidationMiddleware(UpdateCourierDto, true),
+      this.courierController.updateCourier,
+    );
+    this.router.delete(`${this.path}/:id(\\d+)`, AuthMiddleware(Roles.ADMIN), this.courierController.deleteCourier);
+    this.router.get(
+      `${this.path}/:id(\\d+)/stats`,
+      AuthMiddleware(Roles.ADMIN, Roles.SUPPORT, Roles.COURIER),
+      this.courierController.getCourierStats,
+    );
   }
 }

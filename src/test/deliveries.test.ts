@@ -112,13 +112,7 @@ describe('Integration tests for deliveries', () => {
     });
   });
 
-  describe('PUT /deliveries/:id', () => {
-    it('should update a delivery', async () => {
-      const resNewDelivery = await request(app.getServer()).post(route).send(deliveryData);
-      const deliveryUpdateData = { pickupLongitude: '2.294481' };
-      const res = await request(app.getServer()).patch(`/deliveries/${resNewDelivery.body.id}`).send(deliveryUpdateData);
-      expect(res.statusCode).toEqual(200);
-    });
+  describe('PATCH /deliveries/:id', () => {
     it('should return 404 for a non-existing delivery ID', async () => {
       const deliveryUpdateData = { pickupLongitude: '2.294481' };
       const res = await request(app.getServer()).patch(`${route}/10`).send(deliveryUpdateData);

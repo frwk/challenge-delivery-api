@@ -16,9 +16,14 @@ export class DeliveryRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.deliveryController.getDeliveries);
-    this.router.get(`${this.path}/:id(\\d+)`, this.deliveryController.getDeliveryById);
-    this.router.post(`${this.path}/direction`, ValidationMiddleware(DeliveryDirectionDto), this.deliveryController.getDirectionFromLatLng);
+    this.router.get(`${this.path}`, AuthMiddleware(Roles.ADMIN, Roles.SUPPORT), this.deliveryController.getDeliveries);
+    this.router.get(`${this.path}/:id(\\d+)`, AuthMiddleware(), this.deliveryController.getDeliveryById);
+    this.router.post(
+      `${this.path}/direction`,
+      AuthMiddleware(Roles.ADMIN, Roles.SUPPORT),
+      ValidationMiddleware(DeliveryDirectionDto),
+      this.deliveryController.getDirectionFromLatLng,
+    );
     this.router.post(`${this.path}`, AuthMiddleware(Roles.ADMIN), ValidationMiddleware(CreateDeliveryDto), this.deliveryController.createDelivery);
     this.router.post(
       `/users${this.path}/new`,
@@ -32,27 +37,36 @@ export class DeliveryRoute implements Routes {
       ValidationMiddleware(DeliveryTotalDto),
       this.deliveryController.getDeliveryTotal,
     );
-    this.router.patch(`${this.path}/:id(\\d+)`, ValidationMiddleware(CreateDeliveryDto, true), this.deliveryController.updateDelivery);
-    this.router.delete(`${this.path}/:id(\\d+)`, this.deliveryController.deleteDelivery);
-    this.router.get(`/users/:clientId(\\d+)${this.path}`, AuthMiddleware(Roles.ADMIN, Roles.CLIENT), this.deliveryController.getClientDeliveries);
+    this.router.patch(
+      `${this.path}/:id(\\d+)`,
+      AuthMiddleware(),
+      ValidationMiddleware(CreateDeliveryDto, true),
+      this.deliveryController.updateDelivery,
+    );
+    this.router.delete(`${this.path}/:id(\\d+)`, AuthMiddleware(Roles.ADMIN, Roles.SUPPORT), this.deliveryController.deleteDelivery);
+    this.router.get(
+      `/users/:clientId(\\d+)${this.path}`,
+      AuthMiddleware(Roles.ADMIN, Roles.SUPPORT, Roles.CLIENT),
+      this.deliveryController.getClientDeliveries,
+    );
     this.router.get(
       `/users/:clientId(\\d+)${this.path}/current`,
-      AuthMiddleware(Roles.ADMIN, Roles.CLIENT),
+      AuthMiddleware(Roles.ADMIN, Roles.SUPPORT, Roles.CLIENT),
       this.deliveryController.getClientCurrentDeliveries,
     );
     this.router.get(
       `/couriers/:courierId(\\d+)${this.path}`,
-      AuthMiddleware(Roles.ADMIN, Roles.COURIER),
+      AuthMiddleware(Roles.ADMIN, Roles.SUPPORT, Roles.COURIER),
       this.deliveryController.getCourierDeliveries,
     );
     this.router.get(
       `/couriers/:courierId(\\d+)${this.path}/pending`,
-      AuthMiddleware(Roles.ADMIN, Roles.COURIER),
+      AuthMiddleware(Roles.ADMIN, Roles.SUPPORT, Roles.COURIER),
       this.deliveryController.getNearbyDeliveries,
     );
     this.router.get(
       `/couriers/:courierId(\\d+)${this.path}/current`,
-      AuthMiddleware(Roles.ADMIN, Roles.COURIER),
+      AuthMiddleware(Roles.ADMIN, Roles.SUPPORT, Roles.COURIER),
       this.deliveryController.getCourierCurrentDelivery,
     );
   }

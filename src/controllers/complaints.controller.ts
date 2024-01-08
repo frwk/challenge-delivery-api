@@ -147,8 +147,10 @@ export class ComplaintsController {
   };
 
   public getComplaintsByUserId = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    if (req.user.id !== Number(req.params.userId)) {
-      return res.status(401).json({ message: 'Unauthorized' });
+    if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
+      if (req.user.id !== Number(req.params.userId)) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
     }
     try {
       const userId = Number(req.params.userId);
@@ -186,9 +188,7 @@ export class ComplaintsController {
     try {
       const deliveryId = Number(req.params.deliveryId);
       const userId = Number(req.params.userId);
-      console.log(req.user.id);
-      console.log(userId);
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         if (req.user.id !== userId) throw new HttpException(403, 'Access denied');
       }
       const complaints: Complaint[] = await this.complaintsService.findAllComplaints({

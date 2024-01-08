@@ -1,6 +1,7 @@
 import { CreateComplaintDto, UpdateComplaintDto } from '@/dtos/complaints.dto';
 import { HttpException } from '@/exceptions/HttpException';
 import Complaint from '@/models/complaints.model';
+import User from '@/models/users.model';
 import { Attributes, FindOptions } from 'sequelize';
 import { Service } from 'typedi';
 
@@ -43,6 +44,7 @@ export class ComplaintsService {
   public async resolveComplaint(complaintId: number, userId: number, options: FindOptions<Attributes<Complaint>>): Promise<Complaint> {
     const findComplaint: Complaint = await Complaint.findOne({ where: { id: complaintId, userId } });
     if (!findComplaint) throw new HttpException(404, "Complaint doesn't exist");
+    if (findComplaint.userId != userId) throw new HttpException(403, 'Access denied');
 
     await Complaint.update({ status: 'resolved' }, { where: { id: complaintId } });
 

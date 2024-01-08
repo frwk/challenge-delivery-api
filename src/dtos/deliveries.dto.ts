@@ -176,6 +176,12 @@ export class UpdateDeliveryDto {
 
   @IsNotEmpty()
   urgency: DeliveryUrgencyEnum;
+
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  @IsOptional()
+  notation: number;
 }
 
 export class DeliveryTotalDto {

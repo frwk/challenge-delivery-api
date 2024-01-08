@@ -2,14 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import { Container } from 'typedi';
 import { CourierService } from '@services/couriers.service';
 import Courier from '@/models/couriers.model';
-import CourierMongo, { CourierSchema } from '@/database/mongo/models/Courier';
+import { CourierSchema } from '@/database/mongo/models/Courier';
 import { InferSchemaType } from 'mongoose';
 import { DeliveryService } from '@/services/deliveries.service';
 import { Sequelize } from 'sequelize';
 import { RequestWithUser } from '@/interfaces/auth.interface';
 import { Roles } from '@/enums/roles.enum';
 import { HttpException } from '@/exceptions/HttpException';
-import Delivery from '@/models/deliveries.model';
 import { UpdateCourierDto } from '@/dtos/users/update.dto';
 import { CreateCourierDto } from '@/dtos/users/create.dto';
 
@@ -51,11 +50,17 @@ export class CourierController {
     }
   };
 
-  public getCourierById = async (req: Request, res: Response, next: NextFunction) => {
+  public getCourierById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const courierId = Number(req.params.id);
-      const findOneCourierData: InferSchemaType<typeof CourierSchema> = await this.courierService.findCourierById(courierId);
-      res.status(200).json(findOneCourierData);
+      let courier: InferSchemaType<typeof CourierSchema>;
+      courier = await this.courierService.findCourierById(courierId);
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
+        if (Number(courier.user_id) !== req.user.id) throw new HttpException(403, 'Access denied');
+      } else {
+        courier = await this.courierService.findCourierById(courierId);
+      }
+      res.status(200).json(courier);
     } catch (error) {
       next(error);
     }
@@ -72,9 +77,13 @@ export class CourierController {
     }
   };
 
-  public updateCourier = async (req: Request, res: Response, next: NextFunction) => {
+  public updateCourier = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const courierId = Number(req.params.id);
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
+        const courier = await this.courierService.findCourierById(courierId);
+        if (Number(courier.user_id) !== req.user.id) throw new HttpException(403, 'Access denied');
+      }
       const courierData: UpdateCourierDto = req.body;
       const updateCourierData: Courier = await this.courierService.updateCourier(courierId, courierData);
 
@@ -100,7 +109,7 @@ export class CourierController {
       const courierId = Number(req.params.id);
       const courier = await Courier.findByPk(courierId);
       if (!courier) throw new HttpException(404, 'Courier not found');
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         if (req.user.id !== courier.userId) throw new HttpException(403, 'Access denied');
       }
       const stats = await this.deliveryService.findAllDeliveries({

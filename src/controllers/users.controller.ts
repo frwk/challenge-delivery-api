@@ -29,6 +29,9 @@ export class UserController {
   public getUserById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const userId = Number(req.params.id);
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
+        if (req.user.id !== userId) throw new HttpException(403, 'Access denied');
+      }
       const findOneUserData: User = await this.userService.findUserById(userId);
 
       res.status(200).json(findOneUserData);
@@ -51,7 +54,7 @@ export class UserController {
   public updateUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       let userId = Number(req.params.id);
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         userId = req.user.id;
         if (!userId) throw new HttpException(403, 'Access denied');
       }
@@ -102,7 +105,7 @@ export class UserController {
       const userId = Number(req.params.id);
       const user = await User.findByPk(userId);
       if (!user) throw new HttpException(404, 'User not found');
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         if (req.user.id !== userId) throw new HttpException(403, 'Access denied');
       }
       const stats = await this.deliveryService.findAllDeliveries({

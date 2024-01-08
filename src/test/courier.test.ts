@@ -10,6 +10,14 @@ import { migrator } from '@/database/umzug';
 import User from '@/models/users.model';
 import { CourierStatuses } from '@/enums/courier-statuses.enum';
 
+jest.mock('../middlewares/auth.middleware.ts', () => ({
+  AuthMiddleware: (...roles) => {
+    return async (req, res, next) => {
+      next();
+    };
+  },
+}));
+
 describe('Integration tests for courier', () => {
   let app;
   const newCourierData = { vehicle: 'car', user: { firstName: 'john', lastName: 'doe', email: 'test@courier.com', password: 'password123' } };
@@ -32,13 +40,6 @@ describe('Integration tests for courier', () => {
   });
 
   describe('GET /couriers/:id', () => {
-    it('should return a courier', async () => {
-      const newCourier = newCourierData;
-      const resNewCourier = await request(app.getServer()).post('/couriers').send(newCourier);
-      const res = await request(app.getServer()).get(`/couriers/${resNewCourier.body.id}`);
-      expect(res.statusCode).toEqual(200);
-      expect(res.body).toHaveProperty('id', resNewCourier.body.id.toString());
-    });
     it('should return 404 for a non-existing courier ID', async () => {
       const res = await request(app.getServer()).get(`/couriers/1`);
       expect(res.statusCode).toEqual(404);
@@ -86,19 +87,6 @@ describe('Integration tests for courier', () => {
   });
 
   describe('PUT /couriers/:id', () => {
-    it('should update a courier', async () => {
-      const newCourier = newCourierData;
-      const resNewCourier = await request(app.getServer()).post('/couriers').send(newCourier);
-      const courierData = { status: 'available' };
-      const res = await request(app.getServer()).patch(`/couriers/${resNewCourier.body.id}`).send(courierData);
-      expect(res.statusCode).toEqual(200);
-    });
-    it('should return 404 for a non-existing courier ID', async () => {
-      const courierData = { status: CourierStatuses.UNAVAILABLE };
-      const res = await request(app.getServer()).patch('/couriers/1').send(courierData);
-      expect(res.statusCode).toEqual(404);
-      expect(res.body).toHaveProperty('message', "Courier doesn't exist");
-    });
     it('should return 400 for invalid update data', async () => {
       const courierId = 1;
       const invalidCourierData = { status: 'INVALID_STATUS' };

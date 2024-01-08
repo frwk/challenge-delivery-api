@@ -29,7 +29,7 @@ export class DeliveryTrackingController {
   public handleLocationMessage = async (ws, message: any, user: User) => {
     this.deliveryTrackingClientsMap.forEach((client, wsId) => {
       const clientWs = this.deliveryTrackingClientsMap.get(wsId);
-      if (clientWs && client.userInfo.role == 'client') {
+      if (clientWs && client.userInfo.role != Roles.COURIER) {
         clientWs.ws.send(JSON.stringify({ type: 'location', data: message }));
       }
     });
@@ -66,19 +66,32 @@ export class DeliveryTrackingController {
       if (userInfo.role === Roles.CLIENT && userInfo.id !== delivery.clientId) {
         return ws.close(1008, 'Access denied');
       }
-      const courier = await Courier.findByPk(delivery.courierId, {
-        attributes: ['userId'],
-      });
-      if (!courier) throw new HttpException(404, 'Courier not found');
-      if (userInfo.role === Roles.COURIER && userInfo.id !== courier.userId) {
-        return ws.close(1008, 'Access denied');
+      if (delivery.courierId) {
+        const courier = await Courier.findByPk(delivery.courierId, {
+          attributes: ['userId'],
+        });
+        if (!courier) throw new HttpException(404, 'Courier not found');
+        if (userInfo.role === Roles.COURIER && userInfo.id !== courier.userId) {
+          return ws.close(1008, 'Access denied');
+        }
       }
     }
     ws.send(JSON.stringify({ type: 'join', data: { wsId, userInfo, deliveryId } }));
     this.deliveryTrackingClientsMap.set(wsId, { ws, userInfo, deliveryId });
     console.log(`Delivery tracking client ${wsId} connected`);
-    ws.on('message', (message: string) => {
+    ws.on('message', async (message: string) => {
       this.handleWsMessage(ws, message, userInfo);
+      try {
+        const parsedMessage = JSON.parse(message);
+        const messageType = parsedMessage.type;
+        if (messageType === 'location') {
+          const courrierId = parsedMessage.courierId;
+          const coordinates = parsedMessage.coordinates;
+          await Courier.update({ latitude: coordinates[0], longitude: coordinates[1] }, { where: { id: courrierId } });
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
     });
     ws.on('close', () => {
       this.deliveryTrackingClientsMap.delete(wsId);

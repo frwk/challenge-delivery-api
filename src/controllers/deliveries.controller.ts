@@ -16,10 +16,12 @@ import { Sequelize } from 'sequelize';
 import { Container } from 'typedi';
 import { RouteLeg } from '@googlemaps/google-maps-services-js';
 import Pricings from '@/models/pricings.models';
+import { CourierService } from '@/services/couriers.service';
 
 export class DeliveryController {
   public deliveryService = Container.get(DeliveryService);
   public pricingService = Container.get(PricingService);
+  public courierService = Container.get(CourierService);
 
   public getDeliveries = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -34,7 +36,7 @@ export class DeliveryController {
   public getClientDeliveries = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clientId = Number(req.params.clientId);
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         if (req.user.id !== clientId) throw new HttpException(403, 'Access denied');
       }
       const client = await User.findByPk(clientId);
@@ -65,7 +67,7 @@ export class DeliveryController {
       const courierId = Number(req.params.courierId);
       const courier = await Courier.findByPk(courierId);
       if (!courier) throw new HttpException(404, 'Courier not found');
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         if (req.user.id !== courier.userId) throw new HttpException(403, 'Access denied');
       }
       const deliveries: Delivery[] = await Delivery.findAll({
@@ -128,7 +130,7 @@ export class DeliveryController {
     try {
       const client = await User.findByPk(req.body.clientId);
       if (!client) throw new HttpException(404, 'User not found');
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         if (req.user.id !== client.id) throw new HttpException(403, 'Access denied');
       }
       const data: CreateDeliveryDto = req.body;
@@ -152,13 +154,26 @@ export class DeliveryController {
     }
   };
 
-  public updateDelivery = async (req: Request, res: Response, next: NextFunction) => {
+  public updateDelivery = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const id = Number(req.params.id);
+      const delivery = await this.deliveryService.findDeliveryById(id);
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
+        if (req.user.role === Roles.COURIER) {
+          const courier = await Courier.findOne({
+            where: { userId: req.user.id },
+            attributes: ['id', 'userId'],
+          });
+          if (courier.userId !== req.user.id) throw new HttpException(403, 'Access denied');
+          if (delivery.courierId && courier.id !== delivery.courierId) throw new HttpException(403, 'Access denied');
+        } else {
+          if (req.user.id !== delivery.clientId) throw new HttpException(403, 'Access denied');
+        }
+      }
       const data: UpdateDeliveryDto = req.body;
-      const delivery: Delivery = await this.deliveryService.updateDelivery(id, data);
+      const updatedDelivery: Delivery = await this.deliveryService.updateDelivery(id, data);
 
-      res.status(200).json(delivery);
+      res.status(200).json(updatedDelivery);
     } catch (error) {
       next(error);
     }
@@ -216,11 +231,14 @@ export class DeliveryController {
     await FirebaseAdmin.getInstance().getMessaging().sendMulticast(message);
   };
 
-  public getNearbyDeliveries = async (req: Request, res: Response, next: NextFunction) => {
+  public getNearbyDeliveries = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const courierId = Number(req.params.courierId);
       const courier = await Courier.findByPk(courierId);
       if (!courier) throw new HttpException(404, 'Courier not found');
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
+        if (req.user.id !== courier.userId) throw new HttpException(403, 'Access denied');
+      }
       const deliveries: Delivery[] = await Delivery.findAll({
         where: Sequelize.literal(
           `ST_Distance(ST_MakePoint(pickup_longitude, pickup_latitude)::geography, ST_MakePoint(${courier.longitude}, ${courier.latitude})::geography) <= 15000000
@@ -256,7 +274,7 @@ export class DeliveryController {
       const courierId = Number(req.params.courierId);
       const courier = await Courier.findByPk(courierId);
       if (!courier) throw new HttpException(404, 'Courier not found');
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         if (req.user.id !== courier.userId) throw new HttpException(403, 'Access denied');
       }
       const delivery: Delivery = await Delivery.findOne({
@@ -281,7 +299,7 @@ export class DeliveryController {
   public getClientCurrentDeliveries = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clientId = Number(req.params.clientId);
-      if (req.user.role !== Roles.ADMIN) {
+      if (req.user.role !== Roles.ADMIN && req.user.role !== Roles.SUPPORT) {
         if (req.user.id !== clientId) throw new HttpException(403, 'Access denied');
       }
       const client = await User.findByPk(clientId);

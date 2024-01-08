@@ -138,6 +138,10 @@ export class UpdateCourierDto {
   public longitude: string;
 
   @IsOptional()
+  @IsEnum(VehicleEnum)
+  public vehicle: string;
+
+  @IsOptional()
   @ValidateNested()
   @Type(() => UpdateCourierNestedUserDto)
   user: UpdateCourierNestedUserDto;
