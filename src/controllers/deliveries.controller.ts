@@ -14,7 +14,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Op } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { Container } from 'typedi';
-import { LatLng } from '@googlemaps/google-maps-services-js';
+import { RouteLeg } from '@googlemaps/google-maps-services-js';
 import Pricings from '@/models/pricings.models';
 
 export class DeliveryController {
@@ -97,7 +97,7 @@ export class DeliveryController {
   public getDeliveryTotal = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data: DeliveryTotalDto = req.body;
-      const { distance, duration } = await getRouteInfos(data.pickupAddress, data.dropoffAddress);
+      const { distance, duration } = (await getRouteInfos(data.pickupAddress, data.dropoffAddress)) as RouteLeg;
       data.distance = distance.value;
       const deliveryTotal = await this.deliveryService.calculateDeliveryTotal(data.vehicle, data.urgency, distance.value);
       data.total = deliveryTotal;
@@ -137,7 +137,7 @@ export class DeliveryController {
         [data.pickupLongitude, data.pickupLatitude] = pickupLocation;
         [data.dropoffLongitude, data.dropoffLatitude] = dropoffLocation;
       }
-      const { distance } = await getRouteInfos(data.pickupAddress, data.dropoffAddress);
+      const { distance } = (await getRouteInfos(data.pickupAddress, data.dropoffAddress)) as RouteLeg;
       const deliveryTotal = await this.deliveryService.calculateDeliveryTotal(data.vehicle, data.urgency, distance.value);
       data.total = deliveryTotal;
       const pricing = await this.pricingService.findByVehicleAndUrgency(data.vehicle, data.urgency);
