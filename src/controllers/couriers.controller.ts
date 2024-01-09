@@ -16,26 +16,24 @@ export class CourierController {
   public courierService = Container.get(CourierService);
   public deliveryService = Container.get(DeliveryService);
 
-  public getLocations = async (req: Request, res: Response, next: NextFunction) => {
+  public getLocations = async (req: Request, res: Response) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
 
-    const findAllCouriers: InferSchemaType<typeof CourierSchema>[] = await this.courierService.findAllCourier();
-    res.write(`data: ${JSON.stringify(findAllCouriers)}\n\n`);
-    res.flush();
-
-    const sendCouriersLocations = setInterval(async () => {
+    const sendCouriersLocations = async () => {
       const findAllCouriers: InferSchemaType<typeof CourierSchema>[] = await this.courierService.findAllCourier();
       res.write(`data: ${JSON.stringify(findAllCouriers)}\n\n`);
       res.flush();
-    }, 5000);
+    };
+    await sendCouriersLocations();
+    const intervalId = setInterval(sendCouriersLocations, 5000);
 
     res.on('close', () => {
       console.log('client dropped me', new Date().toLocaleString());
-      clearInterval(sendCouriersLocations);
+      clearInterval(intervalId);
       res.end();
     });
   };

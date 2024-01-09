@@ -7,6 +7,7 @@ import { verify } from 'jsonwebtoken';
 import { HttpException } from '@/exceptions/HttpException';
 import 'dotenv/config';
 import Courier from '@/models/couriers.model';
+import CourierMongo from '@/database/mongo/models/Courier';
 import { LoginUserDto, SignupDto } from '@/dtos/auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import Delivery from '@/models/deliveries.model';
@@ -87,13 +88,14 @@ export class DeliveryTrackingController {
         if (messageType === 'location') {
           const courrierId = parsedMessage.courierId;
           const coordinates = parsedMessage.coordinates;
-          await Courier.update({ latitude: coordinates[0], longitude: coordinates[1] }, { where: { id: courrierId } });
+          await CourierMongo.updateOne({ _id: courrierId }, { latitude: coordinates[0], longitude: coordinates[1] });
         }
       } catch (error) {
         console.error('Error parsing message:', error);
       }
     });
     ws.on('close', () => {
+      console.log(`Delivery tracking client ${wsId} disconnected`);
       this.deliveryTrackingClientsMap.delete(wsId);
     });
   };
