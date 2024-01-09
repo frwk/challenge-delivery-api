@@ -121,6 +121,7 @@ jobs:
               docker rm challenge-delivery-container
             fi
             docker run -d --network challenge-delivery --name challenge-delivery-container -p 3001:3000 \
+              -e FRONTEND_URL=${{ secrets.FRONTEND_URL }} \
               -e DOTENV_KEY="dotenv://:key_81ac2ea153b19a10720661a38d241a76a56d61ab61e1b97cc3f5ba07811bf56d@dotenv.org/vault/.env.vault?environment=production" \
               floperrier/challenge-delivery:main
 
